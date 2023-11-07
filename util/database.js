@@ -1,9 +1,9 @@
-const mysql = require("");
+const mysql = require("mysql2");
 
 const pool = mysql.createPool({
   host: "localhost",
-  usre: "root",
-  database: "node-complete",
+  user: "root",
+  database: "products",
   password: "nodecomplete",
 });
 
