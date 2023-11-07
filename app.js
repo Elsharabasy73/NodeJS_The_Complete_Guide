@@ -4,13 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 
 const errorController = require("./controllers/error");
-const db = require("./util/database");
 
-db.execute("SELECT * FROM new_table")
-  .then((res) => {
-    console.log("res", res[0][0]);
-  })
-  .catch((err) => console.log(err));
 
 const app = express();
 
@@ -27,5 +21,4 @@ app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 
 app.use(errorController.get404);
-
 app.listen(3000);
