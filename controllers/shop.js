@@ -116,6 +116,24 @@ exports.getOrders = (req, res, next) => {
     pageTitle: "Your Orders",
   });
 };
+exports.postOrder = (req, res, next) => {
+  req.user
+    .createOrder()
+    .then((order) => {
+      req.user.getCart().then((cart) => {
+        cart.getProducts().then((products) => {
+          order.addProduct(
+            products.map((p) => {
+              p.orderItem = { quantity: p.cartItem.quantity };
+              return p;
+            })
+          );
+        });
+      });
+    })
+    .then((result) => res.redirect("/orders"))
+    .catch((err) => console.log(err));
+};
 
 exports.getCheckout = (req, res, next) => {
   res.render("shop/checkout", {
