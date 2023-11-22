@@ -9,7 +9,7 @@ class Product {
     this.description = description;
     //notice id must be converted here before not after passing
     //because of the use of $set:this id of object must be of mongo form.
-    this._id = new mongodb.ObjectId(id);
+    this._id = id?new mongodb.ObjectId(id):null;
   }
 
   save() {
