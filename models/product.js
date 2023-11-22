@@ -1,3 +1,4 @@
+const mongodb = require("mongodb");
 const getDb = require("../util/database").getDb;
 
 class Product {
@@ -21,34 +22,28 @@ class Product {
   }
 
   static fetchAll() {
-    return getDb()
+    const db = getDb();
+    return db
       .collection("products")
       .find()
       .toArray()
       .catch((err) => console.log(err));
   }
+  static findById(prodId) {
+    const db = getDb();
+    const mongoObjIdForm = new mongodb.ObjectId(prodId);
+    console.log("prodId", prodId);
+    console.log(mongoObjIdForm);
+    return db
+      .collection("products")
+      .find({ _id: mongoObjIdForm })
+      .next()
+      .then((product) => {
+        console.log("mongo product", product);
+        return product;
+      })
+      .catch((err) => console.log(err));
+  }
 }
-
-// const Product = sequelize.define("product", {
-//   id: {
-//     type: Sequelize.INTEGER,
-//     autoIncrement: true,
-//     allowNull: false,
-//     primaryKey: true,
-//   },
-//   title: Sequelize.STRING,
-//   price: {
-//     type: Sequelize.DOUBLE,
-//     allowNull: false,
-//   },
-//   imageUrl: {
-//     type: Sequelize.STRING,
-//     allowNull: false,
-//   },
-//   description: {
-//     type: Sequelize.STRING,
-//     allowNull: false,
-//   },
-// });
 
 module.exports = Product;
