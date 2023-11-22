@@ -11,7 +11,7 @@ class Product {
 
   save() {
     const db = getDb();
-    console.log(db);
+    // console.log(db);
     return db
       .collection("products")
       .insertOne(this)
@@ -21,6 +21,7 @@ class Product {
       .catch((err) => console.log(err));
   }
 
+  //return a list of products.
   static fetchAll() {
     const db = getDb();
     return db
