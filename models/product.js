@@ -27,9 +27,22 @@ class Product {
     }
     return dpOp
       .then((result) => {
-        // console.log(result);
+        console.log('save/update');
       })
       .catch((err) => console.log(err));
+  }
+
+  static deleteById(prodId) {
+    const db = getDb();
+    const mongoObjIdForm = new mongodb.ObjectId(prodId);
+
+    return db
+      .collection("products")
+      .deleteOne({ _id: mongoObjIdForm })
+      .then((result) => {
+        console.log("Delete result:", result);
+      })
+      .catch((err) => console.log("Delete error:", err));
   }
 
   //return a list of products.
