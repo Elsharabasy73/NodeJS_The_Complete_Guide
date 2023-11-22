@@ -54,21 +54,17 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-
-  const db = getDb();
-  const mongoObjIdForm = new mongodb.ObjectId(prodId);
-  const update = { $set: { title: updatedTitle } };
-
-  db.collection("products")
-    .updateOne({ _id: mongoObjIdForm }, update, function (err, result) {
-      console.log("edited", result);
-      res.redirect('/admin/products')
-    }).then(result=>{
-      res.redirect('/admin/products');
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  const product = new Product(
+    updatedTitle,
+    updatedPrice,
+    updatedImageUrl,
+    updatedDesc,
+    prodId
+  );
+  product
+    .save()
+    .then((result) => res.redirect("/admin/products"))
+    .catch((err) => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {
