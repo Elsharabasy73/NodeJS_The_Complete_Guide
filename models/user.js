@@ -14,8 +14,16 @@ class User {
   }
 
   static findById(userId) {
+    const db = getDb();
     const mongoIdForm = new mongodb.ObjectId(userId);
-    return db.collection("user").findOne({ _id: userId });
+    console.log(mongoIdForm);
+    return db
+      .collection("users")
+      .findOne({ _id: mongoIdForm })
+      .then((user) => {
+        console.log("appreq user", user);
+        return user;
+      });
   }
 }
 

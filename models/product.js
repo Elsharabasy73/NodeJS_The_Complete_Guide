@@ -2,7 +2,7 @@ const mongodb = require("mongodb");
 const getDb = require("../util/database").getDb;
 
 class Product {
-  constructor(title, price, imageUrl, description, id) {
+  constructor(title, price, imageUrl, description, id, userId) {
     this.title = title;
     this.price = price;
     this.imageUrl = imageUrl;
@@ -10,20 +10,22 @@ class Product {
     //notice id must be converted here before not after passing
     //because of the use of $set:this id of object must be of mongo form.
     this._id = id?new mongodb.ObjectId(id):null;
+    this.userId = userId;
   }
 
   save() {
     const db = getDb();
     let dpOp;
-
+    console.log(this._id);
     if (this._id) {
       //update
-
       const update = { $set: this };
       dpOp = db.collection("products").updateOne({ _id: this._id }, update);
+      console.log('update');
     } else {
       //insert
       dpOp = db.collection("products").insertOne(this);
+      console.log('insert');
     }
     return dpOp
       .then((result) => {
