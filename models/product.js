@@ -66,7 +66,6 @@ class Product {
       .find({ _id: mongoObjIdForm })
       .next()
       .then((product) => {
-        console.log("mongo product", product);
         return product;
       })
       .catch((err) => console.log(err));

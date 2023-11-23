@@ -15,6 +15,7 @@ class User {
     return db.collection("users").insertOne(this);
   }
 
+  //reurn a products array with all the products in the cart with full info.
   getCart() {
     const db = getDb();
     //get full products info form products table
@@ -39,9 +40,9 @@ class User {
 
   addToCart(product) {
     let cartProductIndex = -1;
-    let updatedCartItems=[]
+    let updatedCartItems = [];
     //search for item.
-    if (this.cart){
+    if (this.cart) {
       cartProductIndex = this.cart.items.findIndex((cp) => {
         return product._id.toString() === cp.productId.toString();
       });
@@ -83,16 +84,44 @@ class User {
 
     //update the db
     const db = getDb();
-    return db
-      .collection("users")
-      //update items inside the cart important
-      .updateOne({ _id: this._id }, { $set: { cart: {items: updatedCartItems} } });
+    return (
+      db
+        .collection("users")
+        //update items inside the cart important
+        .updateOne(
+          { _id: new ObjectId(this._id) },
+          { $set: { cart: { items: updatedCartItems } } }
+        )
+    );
+  }
+
+  addOrder() {
+    const db = getDb();
+    //add order
+    return this.getCart()
+      .then((products) => {
+        const newOrder = {
+          items: products,
+          user: {
+            userId: new ObjectId(this._id),
+            name: this.name,
+          },
+        };
+        db.collection("orders").insertOne(this.cart);
+        console.log("add order");
+      })
+      //delete the cart.
+      .then((result) => {
+        this.cart = { items: [] };
+        return db
+          .collection("users")
+          .updateOne({ _id: this._id }, { $set: { cart: { items: [] } } });
+      });
   }
 
   static findById(userId) {
     const db = getDb();
     const mongoIdForm = new ObjectId(userId);
-    console.log(mongoIdForm);
     return db
       .collection("users")
       .findOne({ _id: mongoIdForm })
