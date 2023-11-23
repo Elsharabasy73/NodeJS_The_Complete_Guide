@@ -38,12 +38,16 @@ class User {
   }
 
   addToCart(product) {
+    const cartProductIndex = -1;
+    const updatedCartItems=[]
     //search for item.
-    const cartProductIndex = this.cart.items.findIndex((cp) => {
-      return product._id.toString() === cp.productId.toString();
-    });
+    if (this.cart){
+      cartProductIndex = this.cart.items.findIndex((cp) => {
+        return product._id.toString() === cp.productId.toString();
+      });
+      updatedCartItems = [...this.cart.items];
+    }
     let newQty = 1;
-    const updatedCartItems = [...this.cart.items];
 
     //item already exist
     if (cartProductIndex >= 0) {
