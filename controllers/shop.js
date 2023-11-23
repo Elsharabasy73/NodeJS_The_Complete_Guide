@@ -48,32 +48,39 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  req.user
-    .getCart()
-    .then((cart) => {
-      return cart.getProducts();
-    })
-    .then((products) => {
-      console.log("pducts", products);
-      res.render("shop/cart", {
-        path: "/cart",
-        pageTitle: "Your Cart",
-        products: products,
-      });
-    })
-    .catch((err) => console.log(err));
+  req.user.getCart().then((products) => {
+    res.render("shop/cart", {
+      path: "/cart",
+      pageTitle: "Your Cart",
+      products: products,
+    });
+  });
+  // req.user
+  //   .getCart()
+  //   .then((cart) => {
+
+  //   })
+  //   .then((products) => {
+  //     res.render("shop/cart", {
+  //       path: "/cart",
+  //       pageTitle: "Your Cart",
+  //       products: products,
+  //     });
+  //   })
+  //   .catch((err) => console.log(err));
 };
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
   Product.findById(prodId)
-  .then((product) => {
-      console.log('post cart');
+    .then((product) => {
+      console.log("post cart");
       return req.user.addToCart(product);
     })
     .then((result) => {
-      console.log('add to cart result: ', result);
-    });
+      res.redirect("/cart");
+    })
+    .catch((err) => console.log(err));
 
   // let newQuanity = 1;
   // let fetchCart;
@@ -122,7 +129,6 @@ exports.postCartDeleteProduct = (req, res, next) => {
 exports.getOrders = (req, res, next) => {
   "use strict";
   req.user.getOrders({ include: ["products"] }).then((orders) => {
-    console.log(orders);
     res.render("shop/orders", {
       path: "/orders",
       pageTitle: "Your Orders",
