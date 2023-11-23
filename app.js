@@ -21,7 +21,7 @@ app.use((req, res, next) => {
   User.findById("655e3d92246841c43876c6d7")
     .then((user) => {
       
-      req.user = user;
+      req.user = new User(user.name, user.email, user.cart, user._id);
       next();
     })
     .catch((err) => console.log(err));
@@ -33,6 +33,5 @@ app.use(shopRoutes);
 app.use(errorController.get404);
 
 mongoConnect((client) => {
-  console.log("clent", client);
   app.listen(3000);
 });
