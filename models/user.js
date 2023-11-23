@@ -107,7 +107,7 @@ class User {
             name: this.name,
           },
         };
-        db.collection("orders").insertOne(this.cart);
+        db.collection("orders").insertOne(newOrder);
         console.log("add order");
       })
       //delete the cart.
