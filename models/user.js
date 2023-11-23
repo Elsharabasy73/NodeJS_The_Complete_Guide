@@ -38,8 +38,8 @@ class User {
   }
 
   addToCart(product) {
-    const cartProductIndex = -1;
-    const updatedCartItems=[]
+    let cartProductIndex = -1;
+    let updatedCartItems=[]
     //search for item.
     if (this.cart){
       cartProductIndex = this.cart.items.findIndex((cp) => {
