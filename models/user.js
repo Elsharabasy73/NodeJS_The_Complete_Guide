@@ -64,11 +64,25 @@ class User {
       items: updatedCartItems,
     };
     // const updatedCart = { items: [{productId: new mongodb.ObjectId(product._id), quantity: 1 }] };
-
+    //update the db
     const db = getDb();
     return db
       .collection("users")
       .updateOne({ _id: this._id }, { $set: { cart: updatedCart } });
+  }
+
+  deleteCartItemsById(prodId) {
+    //delete the product
+    const updatedCartItems = this.cart.items.filter(
+      (p) => !equals(p.productId, prodId)
+    );
+
+    //update the db
+    const db = getDb();
+    return db
+      .collection("users")
+      //update items inside the cart important
+      .updateOne({ _id: this._id }, { $set: { cart: {items: updatedCartItems} } });
   }
 
   static findById(userId) {
@@ -85,3 +99,13 @@ class User {
 }
 
 module.exports = User;
+
+function equals(id1, id2) {
+  if (id1.toString() === id2.toString()) {
+    console.log("The ObjectId values match");
+    return true;
+  } else {
+    console.log("The ObjectId values do NOT match");
+    return false;
+  }
+}
