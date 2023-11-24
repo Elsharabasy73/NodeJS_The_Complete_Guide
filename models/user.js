@@ -104,7 +104,7 @@ class User {
           const newOrder = {
             items: products,
             user: {
-              userId: new ObjectId(this._id),
+              _id: new ObjectId(this._id),
               name: this.name,
             },
           };
@@ -126,7 +126,7 @@ class User {
 
     return db
       .collection("orders")
-      .find({ "user.userId": new ObjectId(this._id) })
+      .find({ "user._id": new ObjectId(this._id) })
       .toArray()
       .then((items) => {
         console.log('items',items)
