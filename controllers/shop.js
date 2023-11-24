@@ -121,14 +121,14 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-  "use strict";
-  req.user.getOrders({ include: ["products"] }).then((orders) => {
+  req.user.getOrders().then(items=>{
+    console.log('items2',items)
     res.render("shop/orders", {
       path: "/orders",
       pageTitle: "Your Orders",
-      orders: orders,
+      orders: items,
     });
-  });
+  })
 };
 
 exports.postOrder = (req, res, next) => {
