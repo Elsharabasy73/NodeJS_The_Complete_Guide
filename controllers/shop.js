@@ -24,7 +24,6 @@ exports.getProduct = (req, res, next) => {
         res.status(404).send("Product not found");
         return;
       }
-
       res.render("shop/product-detail", {
         product: product,
         pageTitle: product.title,
