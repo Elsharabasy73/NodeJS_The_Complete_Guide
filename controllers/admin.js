@@ -1,6 +1,3 @@
-const mongodb = require("mongodb");
-
-const getDb = require("../util/database").getDb;
 const Product = require("../models/product");
 
 exports.getAddProduct = (req, res, next) => {
@@ -16,15 +13,14 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  console.log("requser", req.user)
-  const product = new Product(
-    title,
-    price,
-    imageUrl,
-    description,
-    null,
-    req.user._id
-  );
+  console.log("requser", req.user);
+  const product = new Product({
+    title: title,
+    price: price,
+    imageUrl: imageUrl,
+    description: description,
+  });
+  // the save method used here is provided by mongoose not me.
   product
     .save()
     .then((result) => {

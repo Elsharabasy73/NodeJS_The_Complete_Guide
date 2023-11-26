@@ -6,9 +6,11 @@ const Schema = mongoose.Schema;
 const productSchema = new Schema({
   title: { type: String, required: true },
   price: { type: Number, required: true },
-  description: { type: String, required: ture },
+  description: { type: String, required: true },
   imageUrl: { type: String, required: true },
 });
+//use model to connect a blue print (schema) with a name
+module.exports = mongoose.model('Product', productSchema); 
 
 // const mongodb = require("mongodb");
 // const getDb = require("../util/database").getDb;
