@@ -1,3 +1,15 @@
+const mongoose = require("mongoose");
+
+const Schema = mongoose.Schema;
+
+//_id will be added automatecally
+const productSchema = new Schema({
+  title: { type: String, required: true },
+  price: { type: Number, required: true },
+  description: { type: String, required: ture },
+  imageUrl: { type: String, required: true },
+});
+
 // const mongodb = require("mongodb");
 // const getDb = require("../util/database").getDb;
 
