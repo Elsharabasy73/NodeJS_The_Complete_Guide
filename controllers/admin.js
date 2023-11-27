@@ -19,6 +19,8 @@ exports.postAddProduct = (req, res, next) => {
     price: price,
     imageUrl: imageUrl,
     description: description,
+    //you can store the entire user object and mongoose will just pick up the user._id it self
+    userId: req.user,
   });
   // the save method used here is provided by mongoose not me.
   product
@@ -58,8 +60,7 @@ exports.postEditProduct = (req, res, next) => {
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
 
-  Product
-    .findById(prodId)
+  Product.findById(prodId)
     .then((product) => {
       product.title = updatedTitle;
       product.price = updatedPrice;

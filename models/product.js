@@ -8,9 +8,14 @@ const productSchema = new Schema({
   price: { type: Number, required: true },
   description: { type: String, required: true },
   imageUrl: { type: String, required: true },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
 //use model to connect a blue print (schema) with a name
-module.exports = mongoose.model('Product', productSchema); 
+module.exports = mongoose.model("Product", productSchema);
 
 // const mongodb = require("mongodb");
 // const getDb = require("../util/database").getDb;
