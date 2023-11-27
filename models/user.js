@@ -53,9 +53,13 @@ userSchema.methods.addToCart = function (product) {
 };
 
 userSchema.methods.getCart = function () {
-  return new Promise((resolve, reject) => {
-    resolve(this.cart.items);
-    reject([]);
+  return this.populate("cart.items.productId").then((user) => {
+    const products = [];
+    user.cart.items.forEach((element) => {
+      const product = { ...element.productId._doc, quantity: element.quantity };
+      products.push(product);
+    });
+    return products;
   });
 };
 

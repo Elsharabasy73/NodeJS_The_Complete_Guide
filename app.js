@@ -37,16 +37,17 @@ mongoose
     "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop?retryWrites=true&w=majority"
   )
   .then((result) => {
-    User.findOne().then(user=>{
-      if(!user){
+    User.findOne().then((user) => {
+      if (!user) {
         const user = new User({
           name: "abdo",
           email: "abdo@test.com",
           cart: { items: [] },
-        })
+        });
         user.save();
       }
-    })
+    });
     app.listen(3000);
+    console.log("listenning");
   })
   .catch((err) => console.log(err));

@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const user = require("../models/user");
 
 exports.getProducts = (req, res, next) => {
   Product.find()
@@ -48,12 +49,7 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  req.user.populate("cart.items.productId").then((user) => {
-    const products = [];
-    user.cart.items.forEach((element, index) => {
-      const product = { ...element.productId._doc, quantity: element.quantity };
-      products.push(product);
-    });
+  req.user.getCart().then((products) => {
     res.render("shop/cart", {
       path: "/cart",
       pageTitle: "Your Cart",
