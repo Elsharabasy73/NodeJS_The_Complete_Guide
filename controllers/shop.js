@@ -121,14 +121,14 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-  req.user.getOrders().then(items=>{
-    console.log('items2',items)
+  req.user.getOrders().then((items) => {
+    console.log("items2", items);
     res.render("shop/orders", {
       path: "/orders",
       pageTitle: "Your Orders",
       orders: items,
     });
-  })
+  });
 };
 
 exports.postOrder = (req, res, next) => {

@@ -73,7 +73,10 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+  //populate the field you want with all the data field not just the id
   Product.find()
+  // .select('title price -_id')
+  // .populate("userId", "name")
     .then((products) => {
       res.render("admin/products", {
         prods: products,
