@@ -37,6 +37,7 @@ mongoose
     "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop?retryWrites=true&w=majority"
   )
   .then((result) => {
+    console.log("conneted to the db");
     User.findOne().then((user) => {
       if (!user) {
         const user = new User({

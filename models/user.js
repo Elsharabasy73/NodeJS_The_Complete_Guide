@@ -63,6 +63,14 @@ userSchema.methods.getCart = function () {
   });
 };
 
+userSchema.methods.removeFromCart = function (prodId) {
+  const updatedCartItems = this.cart.items.filter((product) => {
+    return product.productId.toString() !== prodId.toString();
+  });
+  this.cart.items = updatedCartItems;
+  return this.save();
+};
+
 module.exports = mongoose.model("User", userSchema);
 // const mongodb = require("mongodb");
 // const getDb = require("../util/database").getDb;
