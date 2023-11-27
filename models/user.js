@@ -93,7 +93,9 @@ userSchema.methods.addOrder = function () {
       return this.save();
     });
 };
-
+userSchema.methods.getOrders = function () {
+  return Order.find({ "user.userId": this._id }).then((products) => products);
+};
 module.exports = mongoose.model("User", userSchema);
 // const mongodb = require("mongodb");
 // const getDb = require("../util/database").getDb;
