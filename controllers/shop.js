@@ -53,6 +53,7 @@ exports.getIndex = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user.getCart().then((products) => {
+    console.log(products[0]);
     res.render("shop/cart", {
       isAuthenticated: req.isLoggedIn,
       path: "/cart",
