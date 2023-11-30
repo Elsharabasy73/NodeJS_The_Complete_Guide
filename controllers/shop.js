@@ -4,10 +4,12 @@ const user = require("../models/user");
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then((products) => {
+      console.log("getproducts: isauth: ", req.isLoggedIn);
       res.render("shop/product-list", {
         prods: products,
         pageTitle: "All Products",
         path: "/products",
+        isAuthenticated: req.isLoggedIn,
       });
     })
     .catch((err) => {
@@ -29,12 +31,14 @@ exports.getProduct = (req, res, next) => {
         product: product,
         pageTitle: product.title,
         path: "/products",
+        isAuthenticated: true,
       });
     })
     .catch((err) => console.log(err));
 };
 
 exports.getIndex = (req, res, next) => {
+  console.log("req.isLoggedIn index: ", req.isLoggedIn);
   //.find give us the products not the curser
   //we could alse use .find().curser()
   Product.find()
@@ -43,6 +47,7 @@ exports.getIndex = (req, res, next) => {
         prods: products,
         pageTitle: "Shop",
         path: "/",
+        isAuthenticated: req.isLoggedIn,
       });
     })
     .catch((err) => console.log("getindex-shopcontroller", err));
@@ -51,6 +56,7 @@ exports.getIndex = (req, res, next) => {
 exports.getCart = (req, res, next) => {
   req.user.getCart().then((products) => {
     res.render("shop/cart", {
+      isAuthenticated: req.isLoggedIn,
       path: "/cart",
       pageTitle: "Your Cart",
       products: products,
@@ -85,6 +91,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
 exports.getOrders = (req, res, next) => {
   req.user.getOrders().then((items) => {
     res.render("shop/orders", {
+      isAuthenticated: req.isLoggedIn,
       path: "/orders",
       pageTitle: "Your Orders",
       orders: items,
@@ -101,6 +108,7 @@ exports.postOrder = (req, res, next) => {
 
 exports.getCheckout = (req, res, next) => {
   res.render("shop/checkout", {
+    isAuthenticated: req.isLoggedIn,
     path: "/checkout",
     pageTitle: "Checkout",
   });

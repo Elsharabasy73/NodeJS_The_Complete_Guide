@@ -80,11 +80,11 @@ userSchema.methods.addOrder = function () {
       const products = user.cart.items.map((i) => {
         return { quantity: i.quantity, product: { ...i.productId._doc } };
       });
+      //save order
       const order = new Order({
         products: products,
         user: { name: this.name, userId: this._id },
       });
-      //save order
       return order.save();
     })
     .then((result) => {
