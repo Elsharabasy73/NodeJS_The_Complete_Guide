@@ -4,7 +4,6 @@ const user = require("../models/user");
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then((products) => {
-      console.log("getproducts: isauth: ", req.isLoggedIn);
       res.render("shop/product-list", {
         prods: products,
         pageTitle: "All Products",
@@ -38,7 +37,6 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  console.log("req.isLoggedIn index: ", req.isLoggedIn);
   //.find give us the products not the curser
   //we could alse use .find().curser()
   Product.find()
