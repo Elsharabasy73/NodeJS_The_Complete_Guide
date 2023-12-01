@@ -37,7 +37,6 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  console.log
   //.find give us the products not the curser
   //we could alse use .find().curser()
   Product.find()
@@ -53,7 +52,10 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  req.user.getCart().then((products) => {
+  // console.log("user", req.session.user);
+  // console.log("user", req.user);
+  
+  req.session.user.getCart().then((products) => {
     res.render("shop/cart", {
       isAuthenticated: req.session.isLoggedIn,
       path: "/cart",

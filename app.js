@@ -17,8 +17,8 @@ const app = express();
 const store = new MongoDBStore({
   //uri not url be careful
   uri: MONGODB_URL,
-  collection: 'sessions'
-})
+  collection: "sessions",
+});
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -30,14 +30,25 @@ const authRoutes = require("./routes/auth");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
-  session({ secret: "my secret", resave: false, saveUninitialized: false, store:store })
+  session({
+    secret: "my secret",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
 );
-
+console.log('hi')
 app.use((req, res, next) => {
   // User.findById("65639f553e44f96de15b9436")//online
-  User.findById("6569cae9bfe861d3f4f6fa6c")//offline
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
     .then((user) => {
       req.user = user;
+      // console.log("login1", req.session.user.getCart);//undefinded
+      // req.session.user = user;
+      // console.log("login1", req.session.user.getCart);//[Function (anonymous)]
       next();
     })
     .catch((err) => console.log(err));
@@ -50,9 +61,7 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect(
-    MONGODB_URL
-  )
+  .connect(MONGODB_URL)
   .then((result) => {
     console.log("conneted to the db");
     User.findOne().then((user) => {
