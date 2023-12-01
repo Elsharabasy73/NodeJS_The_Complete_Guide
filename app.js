@@ -3,11 +3,22 @@ const express = require("express");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const MongoDBStore = require("connect-mongodb-session")(session);
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
+const MONGODB_URL =
+  // "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop"
+  // "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop?retryWrites=true&w=majority"
+  "mongodb://localhost:27017/";
+
 const app = express();
+const store = new MongoDBStore({
+  //uri not url be careful
+  uri: MONGODB_URL,
+  collection: 'sessions'
+})
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -19,11 +30,12 @@ const authRoutes = require("./routes/auth");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
-  session({ secret: "my secret", resave: false, saveUninitialized: false })
+  session({ secret: "my secret", resave: false, saveUninitialized: false, store:store })
 );
 
 app.use((req, res, next) => {
-  User.findById("65639f553e44f96de15b9436")
+  // User.findById("65639f553e44f96de15b9436")//online
+  User.findById("6569cae9bfe861d3f4f6fa6c")//offline
     .then((user) => {
       req.user = user;
       next();
@@ -39,7 +51,7 @@ app.use(errorController.get404);
 
 mongoose
   .connect(
-    "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop?retryWrites=true&w=majority"
+    MONGODB_URL
   )
   .then((result) => {
     console.log("conneted to the db");
