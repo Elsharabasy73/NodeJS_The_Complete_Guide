@@ -37,7 +37,7 @@ app.use(
     store: store,
   })
 );
-console.log('hi')
+console.log("hi");
 app.use((req, res, next) => {
   // User.findById("65639f553e44f96de15b9436")//online
   if (!req.session.user) {
@@ -64,16 +64,6 @@ mongoose
   .connect(MONGODB_URL)
   .then((result) => {
     console.log("conneted to the db");
-    User.findOne().then((user) => {
-      if (!user) {
-        const user = new User({
-          name: "abdo",
-          email: "abdo@test.com",
-          cart: { items: [] },
-        });
-        user.save();
-      }
-    });
     app.listen(3000);
     console.log("listenning");
   })
