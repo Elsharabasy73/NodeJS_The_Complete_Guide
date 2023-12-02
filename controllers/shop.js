@@ -55,7 +55,7 @@ exports.getCart = (req, res, next) => {
   // console.log("user", req.session.user);
   // console.log("user", req.user);
   
-  req.session.user.getCart().then((products) => {
+  req.user.getCart().then((products) => {
     res.render("shop/cart", {
       isAuthenticated: req.session.isLoggedIn,
       path: "/cart",
