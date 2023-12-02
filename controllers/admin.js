@@ -4,6 +4,7 @@ exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
+    isAuthenticated: req.session.isLoggedIn,
     editing: false,
   });
 };
@@ -45,6 +46,7 @@ exports.getEditProduct = (req, res, next) => {
       res.render("admin/edit-product", {
         pageTitle: "Edit Product",
         path: "/admin/edit-product",
+        isAuthenticated: req.session.isLoggedIn,
         editing: editMode,
         product: product,
       });
@@ -74,13 +76,14 @@ exports.postEditProduct = (req, res, next) => {
 exports.getProducts = (req, res, next) => {
   //populate the field you want with all the data field not just the id
   Product.find()
-  // .select('title price -_id')
-  // .populate("userId", "name")
+    // .select('title price -_id')
+    // .populate("userId", "name")
     .then((products) => {
       res.render("admin/products", {
         prods: products,
         pageTitle: "Admin Products",
         path: "/admin/products",
+        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((err) => console.log("getindex-shopcontroller", err));

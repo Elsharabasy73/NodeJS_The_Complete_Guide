@@ -8,6 +8,7 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: "All Products",
         path: "/products",
+        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((err) => {
@@ -29,6 +30,7 @@ exports.getProduct = (req, res, next) => {
         product: product,
         pageTitle: product.title,
         path: "/products",
+        isAuthenticated: true,
       });
     })
     .catch((err) => console.log(err));
@@ -43,14 +45,19 @@ exports.getIndex = (req, res, next) => {
         prods: products,
         pageTitle: "Shop",
         path: "/",
+        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((err) => console.log("getindex-shopcontroller", err));
 };
 
 exports.getCart = (req, res, next) => {
+  // console.log("user", req.session.user);
+  // console.log("user", req.user);
+  
   req.user.getCart().then((products) => {
     res.render("shop/cart", {
+      isAuthenticated: req.session.isLoggedIn,
       path: "/cart",
       pageTitle: "Your Cart",
       products: products,
@@ -85,6 +92,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
 exports.getOrders = (req, res, next) => {
   req.user.getOrders().then((items) => {
     res.render("shop/orders", {
+      isAuthenticated: req.session.isLoggedIn,
       path: "/orders",
       pageTitle: "Your Orders",
       orders: items,
@@ -101,6 +109,7 @@ exports.postOrder = (req, res, next) => {
 
 exports.getCheckout = (req, res, next) => {
   res.render("shop/checkout", {
+    isAuthenticated: req.session.isLoggedIn,
     path: "/checkout",
     pageTitle: "Checkout",
   });
