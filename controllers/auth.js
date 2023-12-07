@@ -1,9 +1,8 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 exports.getLogin = (req, res, next) => {
-  const messageList = req.flash("error");
-  const errorMessage = messageList? messageList[0]:null;
-  console.log('error', errorMessage); // Log the flash message
+  const errorMessageList = req.flash("error");
+  const errorMessage = errorMessageList ? errorMessageList[0] : null;
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
@@ -11,12 +10,14 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
-
 exports.getSignup = (req, res, next) => {
+  const errorMessageList = req.flash("error");
+  const errorMessage = errorMessageList ? errorMessageList[0] : null;
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "Signup",
     isAuthenticated: false,
+    errorMessage: errorMessage,
   });
 };
 
@@ -55,6 +56,7 @@ exports.postSignup = (req, res, next) => {
   User.findOne({ email: email })
     .then((userDoc) => {
       if (userDoc) {
+        req.flash("error", `This email '${email}' already exist`);
         return res.redirect("/signup");
       }
       console.log("userDoc", userDoc);
