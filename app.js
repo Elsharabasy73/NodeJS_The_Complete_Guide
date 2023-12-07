@@ -4,7 +4,7 @@ const session = require("express-session");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const MongoDBStore = require("connect-mongodb-session")(session);
-
+const csrf = require("csurf");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -20,7 +20,7 @@ const store = new MongoDBStore({
   uri: MONGODB_URL,
   collection: "sessions",
 });
-
+const csrfProtection = csrf();
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -38,9 +38,10 @@ app.use(
     store: store,
   })
 );
-console.log("hi");
+//after initialising the session csrf will use that session
+app.use(csrfProtection);
+
 app.use((req, res, next) => {
-  // User.findById("65639f553e44f96de15b9436")//online
   if (!req.session.user) {
     return next();
   }

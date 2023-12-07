@@ -46,10 +46,12 @@ exports.getIndex = (req, res, next) => {
         pageTitle: "Shop",
         path: "/",
         isAuthenticated: req.session.isLoggedIn,
+        csrfToken:req.csrfToken(),
       });
     })
     .catch((err) => console.log("getindex-shopcontroller", err));
 };
+
 
 exports.getCart = (req, res, next) => {
   // console.log("user", req.session.user);
