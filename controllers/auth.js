@@ -1,26 +1,80 @@
 const User = require("../models/user");
+const bcrypt = require("bcryptjs");
 exports.getLogin = (req, res, next) => {
-  console.log(req.session);
+  const errorMessageList = req.flash("error");
+  const errorMessage = errorMessageList ? errorMessageList[0] : null;
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
+    errorMessage: errorMessage, // Pass the stored flash message to the view
+  });
+};
+
+exports.getSignup = (req, res, next) => {
+  const errorMessageList = req.flash("error");
+  const errorMessage = errorMessageList ? errorMessageList[0] : null;
+  res.render("auth/signup", {
+    path: "/signup",
+    pageTitle: "Signup",
     isAuthenticated: false,
+    errorMessage: errorMessage,
   });
 };
 
 exports.postLogin = (req, res, next) => {
-  User.findById("6569cae9bfe861d3f4f6fa6c")
+  const email = req.body.email;
+  const password = req.body.password;
+
+  User.findOne({ email: email })
     .then((user) => {
-      req.session.isLoggedIn = true;
-      req.session.user = user;
-      req.session.save((err) => {
-        res.redirect("/");
-        console.log(err);
+      if (!user) {
+        req.flash("error", "Invalid email or password.");
+        return res.redirect("/login");
+      }
+      bcrypt.compare(password, user.password).then((doMatch) => {
+        if (doMatch) {
+          console.log("user login: ", user);
+          req.session.isLoggedIn = true;
+          req.session.user = user;
+          req.session.save((err) => {
+            console.log(err);
+            res.redirect("/");
+          });
+        } else {
+          return res.redirect("/login");
+        }
       });
     })
     .catch((err) => console.log(err));
 };
- 
+
+exports.postSignup = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
+
+  User.findOne({ email: email })
+    .then((userDoc) => {
+      if (userDoc) {
+        req.flash("error", `This email '${email}' already exist`);
+        return res.redirect("/signup");
+      }
+      console.log("userDoc", userDoc);
+      return bcrypt
+        .hash(password, 12)
+        .then((hashedPassword) => {
+          const user = new User({
+            email: email,
+            password: hashedPassword,
+            cart: { items: [] },
+          });
+          return user.save();
+        })
+        .then((result) => res.redirect("/login"));
+    })
+    .catch((err) => console.log(err));
+};
+
 exports.postLogout = (req, res, next) => {
   req.session.destroy((err) => {
     console.log(err);

@@ -4,6 +4,8 @@ const session = require("express-session");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const MongoDBStore = require("connect-mongodb-session")(session);
+const csrf = require("csurf");
+const flash = require("connect-flash");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -19,7 +21,7 @@ const store = new MongoDBStore({
   uri: MONGODB_URL,
   collection: "sessions",
 });
-
+const csrfProtection = csrf();
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -37,9 +39,13 @@ app.use(
     store: store,
   })
 );
-console.log('hi')
+//after initialising the session csrf will use that session
+app.use(csrfProtection);
+//flash need to be configure/initialize after initializing the session
+app.use(flash());
+//now we can yse that flash iddleware any ware in our req object
+
 app.use((req, res, next) => {
-  // User.findById("65639f553e44f96de15b9436")//online
   if (!req.session.user) {
     return next();
   }
@@ -54,6 +60,13 @@ app.use((req, res, next) => {
     .catch((err) => console.log(err));
 });
 
+//add a local fields will be send to the views.
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -64,16 +77,6 @@ mongoose
   .connect(MONGODB_URL)
   .then((result) => {
     console.log("conneted to the db");
-    User.findOne().then((user) => {
-      if (!user) {
-        const user = new User({
-          name: "abdo",
-          email: "abdo@test.com",
-          cart: { items: [] },
-        });
-        user.save();
-      }
-    });
     app.listen(3000);
     console.log("listenning");
   })
