@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
+const flash = require("connect-flash");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -40,6 +41,9 @@ app.use(
 );
 //after initialising the session csrf will use that session
 app.use(csrfProtection);
+//flash need to be configure/initialize after initializing the session
+app.use(flash());
+//now we can yse that flash iddleware any ware in our req object
 
 app.use((req, res, next) => {
   if (!req.session.user) {
