@@ -1,14 +1,19 @@
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const sendgridTransport = require("nodemailer-sendgrid-transport");
 
 const User = require("../models/user");
+const user = require("../models/user");
+
+const API_KEY =
+  "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";
+const SINGLE_SENDER = "sara.momo7112@gmail.com";
 
 const transporter = nodemailer.createTransport(
   sendgridTransport({
     auth: {
-      api_key:
-        "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",
+      api_key: API_KEY,
     },
   })
 );
@@ -62,7 +67,7 @@ exports.postLogin = (req, res, next) => {
 };
 
 exports.postSignup = (req, res, next) => {
-  const email = req.body.email; 
+  const email = req.body.email;
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
 
@@ -72,7 +77,6 @@ exports.postSignup = (req, res, next) => {
         req.flash("error", `This email '${email}' already exist`);
         return res.redirect("/signup");
       }
-      console.log("userDoc", userDoc);
       return bcrypt
         .hash(password, 12)
         .then((hashedPassword) => {
@@ -102,5 +106,59 @@ exports.postLogout = (req, res, next) => {
   req.session.destroy((err) => {
     console.log(err);
     res.redirect("/");
+  });
+};
+
+exports.getReset = (req, res, next) => {
+  const errorMessageList = req.flash("error");
+  const errorMessage = errorMessageList ? errorMessageList[0] : null;
+  res.render("auth/reset", {
+    path: "/reset",
+    pageTitle: "Reset",
+    errorMessage: errorMessage, // Pass the stored flash message to the view
+  });
+};
+
+exports.postReset = (req, res, next) => {
+  const email = req.body.email;
+
+  return crypto.randomBytes(32, (err, buffer) => {
+    if (err) {
+      console.log("asdfa", err);
+      res.redirect("/reset");
+    }
+    const token = buffer.toString("hex");
+    //find user
+    User.findOne({ email: email })
+      .then((user) => {
+        //not found
+        if (!user) {
+          req.flash(
+            "error",
+            `This email '${email}' you want to reset dosen't exist`
+          );
+          return res.redirect("/signup");
+        }
+        //found
+        user.resetToken = token;
+        user.resetTokenExpiration = Date.now() + 6000 * 15;
+        console.log()
+        return user.save();
+      })
+      .then((result) => {
+        res.redirect("/login");
+        return transporter
+          .sendMail({
+            to: email,
+            from: SINGLE_SENDER,
+            subject: "Reset your password!",
+            html: `
+            <h1>Ready to Reset?</h1>
+            <p> Click this <a href='http://localhost:3000/reset/${token}'> link </a> to set a new password</p>
+            `,
+          })
+          .catch((err) => console.log("asdfa", err));
+      })
+      .catch((err) => console.log("adsf", err));
   });
 };

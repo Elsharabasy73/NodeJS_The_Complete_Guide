@@ -5,9 +5,11 @@ const product = require("./product");
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  name: { type: String},
+  name: { type: String },
   email: { type: String, required: true },
   password: { type: String, required: true },
+  resetToken: String,
+  resetTokenExpiration: Date,
   cart: {
     items: [
       {
