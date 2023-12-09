@@ -92,7 +92,7 @@ exports.postSignup = (req, res, next) => {
           return transporter
             .sendMail({
               to: email,
-              from: "abdo.make631@gmail.com",
+              from: SINGLE_SENDER,
               subject: "Signup successfully!",
               html: "<h1>hi from us. </h1>",
             })
@@ -164,12 +164,19 @@ exports.postReset = (req, res, next) => {
 
 exports.getNewPassword = (req, res, next) => {
   const token = req.params.token;
-  console.log('token', token)
+
   const errorMessageList = req.flash("error");
   const errorMessage = errorMessageList ? errorMessageList[0] : null;
-  res.render("auth/new-password", {
-    path: "/reset",
-    pageTitle: "Reset",
-    errorMessage: errorMessage, // Pass the stored flash message to the view
-  });
+
+  console.log("token", token);
+  User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
+    .then((user) => {
+      res.render("auth/new-password", {
+        path: "/reset",
+        pageTitle: "Reset",
+        errorMessage: errorMessage, // Pass the stored flash message to the view
+        userId: user._id.toString(),
+      });
+    })
+    .catch((err) => console.log(err));
 };
