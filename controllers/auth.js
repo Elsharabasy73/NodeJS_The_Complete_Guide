@@ -7,7 +7,7 @@ const User = require("../models/user");
 const user = require("../models/user");
 
 const API_KEY =
-  "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";
+  "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";
 const SINGLE_SENDER = "sara.momo7112@gmail.com";
 
 const transporter = nodemailer.createTransport(
@@ -141,7 +141,7 @@ exports.postReset = (req, res, next) => {
         }
         //found
         user.resetToken = token;
-        user.resetTokenExpiration = Date.now() + 6000 * 120;
+        user.resetTokenExpiration = Date.now() + 60000 * 120;
         console.log();
         return user.save().then((result) => {
           res.redirect("/login");
@@ -175,8 +175,37 @@ exports.getNewPassword = (req, res, next) => {
         path: "/reset",
         pageTitle: "Reset",
         errorMessage: errorMessage, // Pass the stored flash message to the view
+        passwordToken: token,
         userId: user._id.toString(),
       });
+    })
+    .catch((err) => console.log(err));
+};
+
+//update password
+exports.postNewPassword = (req, res, next) => {
+  const token = req.body.passwordToken;
+  const userId = req.body.userId;
+  const password = req.body.password;
+
+  let resetUser;
+  User.findOne({
+    _id: userId,
+    resetToken: token,
+    resetTokenExpiration: { $gt: Date.now() },
+  })
+    .then((user) => {
+      resetUser = user;
+      return bcrypt.hash(password, 12);
+    })
+    .then((hashedPassword) => {
+      resetUser.password = hashedPassword;
+      resetUser.resetToken = undefined;
+      resetUser.resetTokenExpiration = undefined;
+      return resetUser.save();
+    })
+    .then((result) => {
+      res.redirect("/login");
     })
     .catch((err) => console.log(err));
 };

@@ -80,7 +80,7 @@ mongoose
   .connect(MONGODB_URL)
   .then((result) => {
     console.log("conneted to the db");
-    app.listen(3000);
+    app.listen(3000,'192.168.1.6');
     console.log("listenning");
   })
   .catch((err) => console.log(err));
