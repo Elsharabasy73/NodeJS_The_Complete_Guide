@@ -81,6 +81,7 @@ exports.postSignup = (req, res, next) => {
         .hash(password, 12)
         .then((hashedPassword) => {
           const user = new User({
+            name:'temp',
             email: email,
             password: hashedPassword,
             cart: { items: [] },
