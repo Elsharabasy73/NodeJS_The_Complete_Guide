@@ -141,24 +141,35 @@ exports.postReset = (req, res, next) => {
         }
         //found
         user.resetToken = token;
-        user.resetTokenExpiration = Date.now() + 6000 * 15;
-        console.log()
-        return user.save();
-      })
-      .then((result) => {
-        res.redirect("/login");
-        return transporter
-          .sendMail({
-            to: email,
-            from: SINGLE_SENDER,
-            subject: "Reset your password!",
-            html: `
-            <h1>Ready to Reset?</h1>
-            <p> Click this <a href='http://localhost:3000/reset/${token}'> link </a> to set a new password</p>
-            `,
-          })
-          .catch((err) => console.log("asdfa", err));
+        user.resetTokenExpiration = Date.now() + 6000 * 120;
+        console.log();
+        return user.save().then((result) => {
+          res.redirect("/login");
+          return transporter
+            .sendMail({
+              to: email,
+              from: SINGLE_SENDER,
+              subject: "Reset your password!",
+              html: `
+              <h1>Ready to Reset?</h1>
+              <p> Click this <a href='http://localhost:3000/reset/${token}'> link </a> to set a new password</p>
+              `,
+            })
+            .catch((err) => console.log("asdfa", err));
+        });
       })
       .catch((err) => console.log("adsf", err));
+  });
+};
+
+exports.getNewPassword = (req, res, next) => {
+  const token = req.params.token;
+  console.log('token', token)
+  const errorMessageList = req.flash("error");
+  const errorMessage = errorMessageList ? errorMessageList[0] : null;
+  res.render("auth/new-password", {
+    path: "/reset",
+    pageTitle: "Reset",
+    errorMessage: errorMessage, // Pass the stored flash message to the view
   });
 };
