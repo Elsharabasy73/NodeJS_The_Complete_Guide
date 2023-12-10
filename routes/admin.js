@@ -17,7 +17,7 @@ router.get("/add-product", isAuth, adminController.getAddProduct);
 // /admin/add-product => POST
 router.post("/add-product", isAuth, adminController.postAddProduct);
 
-router.get("/edit-product/:productId", adminController.getEditProduct);
+router.get("/edit-product/:productId", isAuth, adminController.getEditProduct);
 
 router.post("/edit-product", isAuth, adminController.postEditProduct);
 
