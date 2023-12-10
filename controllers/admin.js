@@ -62,19 +62,22 @@ exports.postEditProduct = (req, res, next) => {
 
   Product.findById(prodId)
     .then((product) => {
+      if (product.userId.toString() !== req.user._id.toString()) {
+        return res.redirect("/");
+      }
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.imageUrl = updatedImageUrl;
       product.description = updatedDesc;
-      return product.save();
+      return product.save().then((result) => res.redirect("/admin/products"));
     })
-    .then((result) => res.redirect("/admin/products"))
+
     .catch((err) => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {
   //populate the field you want with all the data field not just the id
-  Product.find()
+  Product.find({ userId: req.user._id })
     // .select('title price -_id')
     // .populate("userId", "name")
     .then((products) => {
@@ -90,16 +93,7 @@ exports.getProducts = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
 
-  Product.findByIdAndDelete(prodId).then((resutl) => {
+  Product.deleteOne({ _id: prodId, userId: req.user._id }).then((resutl) => {
     res.redirect("/admin/products");
   });
-
-  // Product.findByPk(prodId)
-  //   .then((product) => {
-  //     return product.destroy();
-  //   })
-  //   .then((result) => {
-  //     console.log("Product Distroyed.");
-  //   })
-  //   .catch((err) => console.log(err));
 };

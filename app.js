@@ -1,3 +1,4 @@
+//17. Advanced Authentication
 const path = require("path");
 const express = require("express");
 const session = require("express-session");
@@ -64,6 +65,8 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
   res.locals.csrfToken = req.csrfToken();
+  // const errorMessageList = req.flash("error");
+  // const errorMessage = errorMessageList ? errorMessageList[0] : null;
   next();
 });
 
@@ -77,7 +80,7 @@ mongoose
   .connect(MONGODB_URL)
   .then((result) => {
     console.log("conneted to the db");
-    app.listen(3000);
+    app.listen(3000,'192.168.1.6');
     console.log("listenning");
   })
   .catch((err) => console.log(err));
