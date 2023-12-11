@@ -27,6 +27,12 @@ exports.getLogin = (req, res, next) => {
     path: "/login",
     pageTitle: "Login",
     errorMessage: errorMessage, // Pass the stored flash message to the view
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationErrors: [],
   });
 };
 
@@ -38,12 +44,33 @@ exports.getSignup = (req, res, next) => {
     pageTitle: "Signup",
     isAuthenticated: false,
     errorMessage: errorMessage,
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationErrors: [],
   });
 };
 
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("auth/login", {
+      path: "/login",
+      pageTitle: "login-PR",
+      isAuthenticated: false,
+      errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+      },
+      validationErrors: errors.array(),
+    });
+  }
 
   User.findOne({ email: email })
     .then((user) => {
@@ -71,15 +98,21 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+  const confirmPassword = req.body.password;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log(errors.array());
     return res.status(422).render("auth/signup", {
       path: "/signup",
       pageTitle: "Signup-PR",
       isAuthenticated: false,
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+      },
+      validationErrors: errors.array(),
     });
   }
   bcrypt

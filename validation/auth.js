@@ -31,4 +31,17 @@ module.exports.signup = [
     }
     return true;
   }),
-]
+];
+
+module.exports.login = [
+  check("email", "Envalid  email.")
+    .isEmail()
+    .custom((value, { req }) => {
+      return User.findOne({ email: value }).then((user) => {
+        if (!user) {
+          return Promise.reject("this email dosen't exists");
+        }
+      });
+    }),
+  check("password", 'password must be at least 5 characters').isAlphanumeric().isLength({ min: 5 }),
+];
