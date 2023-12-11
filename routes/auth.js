@@ -27,6 +27,17 @@ router.post(
     body("password", "Plese enter a pass with lenth more than or equal 5 ch.")
       .isLength({ min: 5 })
       .isAlphanumeric(),
+    body("confirmPassword").custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Passwords have to match!");
+      }
+      console.log(
+        value !== req.body.confirmPassword,
+        value,
+        req.body.confirmPassword
+      );
+      return true;
+    }),
   ],
   authController.postSignup
 );
