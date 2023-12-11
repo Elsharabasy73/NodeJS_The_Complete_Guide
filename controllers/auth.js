@@ -9,7 +9,7 @@ const User = require("../models/user");
 const user = require("../models/user");
 
 const API_KEY =
-  "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";
+  "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";
 const SINGLE_SENDER = "sara.momo7112@gmail.com";
 
 const transporter = nodemailer.createTransport(
