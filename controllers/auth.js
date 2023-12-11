@@ -71,45 +71,38 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  const confirmPassword = req.body.confirmPassword;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log(errors.array());
     return res.status(422).render("auth/signup", {
       path: "/signup",
-      pageTitle: "Signup",
+      pageTitle: "Signup-PR",
       isAuthenticated: false,
       errorMessage: errors.array()[0].msg,
     });
   }
-  User.findOne({ email: email })
-    .then((userDoc) => {
-      if (userDoc) {
-        req.flash("error", `This email '${email}' already exist`);
-        return res.redirect("/signup");
-      }
-      return bcrypt
-        .hash(password, 12)
-        .then((hashedPassword) => {
-          const user = new User({
-            name: "temp",
-            email: email,
-            password: hashedPassword,
-            cart: { items: [] },
-          });
-          return user.save();
+  bcrypt
+    .hash(password, 12)
+    .then((hashedPassword) => {
+      const user = new User({
+        name: "temp",
+        email: email,
+        password: hashedPassword,
+        cart: { items: [] },
+      });
+      return user.save();
+    })
+    .then((result) => {
+      res.redirect("/login");
+      return transporter
+        .sendMail({
+          to: email,
+          from: SINGLE_SENDER,
+          subject: "Signup successfully!",
+          html: "<h1>hi from us. </h1>",
         })
-        .then((result) => {
-          res.redirect("/login");
-          return transporter
-            .sendMail({
-              to: email,
-              from: SINGLE_SENDER,
-              subject: "Signup successfully!",
-              html: "<h1>hi from us. </h1>",
-            })
-            .catch((err) => console.log(err));
-        });
+        .catch((err) => console.log(err));
     })
     .catch((err) => console.log(err));
 };
