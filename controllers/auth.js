@@ -80,7 +80,6 @@ exports.postLogin = (req, res, next) => {
       }
       bcrypt.compare(password, user.password).then((doMatch) => {
         if (doMatch) {
-          console.log("user login: ", user);
           req.session.isLoggedIn = true;
           req.session.user = user;
           req.session.save((err) => {

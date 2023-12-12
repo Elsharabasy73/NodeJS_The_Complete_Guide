@@ -6,6 +6,8 @@ module.exports.signup = [
   check("email")
     .isEmail()
     .withMessage("Please enter a valid email.")
+    .normalizeEmail()
+    .trim()
     .custom((value, { req }) => {
       // if (value === "abdo") {
       //   console.log("value", value, value === "abdo");
@@ -13,15 +15,15 @@ module.exports.signup = [
       // }
       //if we return a promise express validator will wait for it to be fullfield.
       return User.findOne({ email: value }).then((userDoc) => {
-        console.log("in if");
-        console.log("email", userDoc);
         if (userDoc) {
           console.log("Email already exists.");
           //this reject will be stored as an error message.
           return Promise.reject("Email already exists.");
         }
       });
-    }),
+    })
+    .normalizeEmail()
+    .trim(),
   body("password", "Plese enter a pass with lenth more than or equal 5 ch.")
     .isLength({ min: 5 })
     .isAlphanumeric(),
@@ -43,5 +45,7 @@ module.exports.login = [
         }
       });
     }),
-  check("password", 'password must be at least 5 characters').isAlphanumeric().isLength({ min: 5 }),
+  check("password", "password must be at least 5 characters")
+    .isAlphanumeric()
+    .isLength({ min: 5 }),
 ];
