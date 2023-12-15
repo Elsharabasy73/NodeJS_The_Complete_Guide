@@ -5,6 +5,7 @@ const isAuth = require("../middleware/is-auth");
 
 const shopController = require("../controllers/shop");
 
+
 const router = express.Router();
 router.get("/", shopController.getIndex);
 
