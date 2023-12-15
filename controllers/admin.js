@@ -9,6 +9,7 @@ exports.getAddProduct = (req, res, next) => {
     editing: false,
     hasErrors: false,
     errorMessage: null,
+    validationErrors:[],
   });
 };
 
@@ -32,6 +33,7 @@ exports.postAddProduct = (req, res, next) => {
       product: product,
       hasErrors: true,
       errorMessage: errors.array()[0].msg,
+      validationErrors:errors.array(),
     });
   }
   // the save method used here is provided by mongoose not me.
@@ -62,6 +64,7 @@ exports.getEditProduct = (req, res, next) => {
         product: product,
         hasErrors: false,
         errorMessage: null,
+        validationErrors:[],
       });
     })
     .catch((err) => console.log(err));
@@ -91,6 +94,7 @@ exports.postEditProduct = (req, res, next) => {
       product: product,
       hasErrors: true,
       errorMessage: errors.array()[0].msg,
+      validationErrors:errors.array(),
     });
   }
   //add product
