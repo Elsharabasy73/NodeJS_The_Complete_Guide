@@ -21,12 +21,11 @@ module.exports.signup = [
           return Promise.reject("Email already exists.");
         }
       });
-    })
-    .normalizeEmail()
-    .trim(),
-  body("password", "Plese enter a pass with lenth more than or equal 5 ch.")
-    .isLength({ min: 5 })
-    .isAlphanumeric(),
+    }),
+  body(
+    "password",
+    "Plese enter a pass with lenth more than or equal 5 ch."
+  ).isLength({ min: 5 }),
   body("confirmPassword").custom((value, { req }) => {
     if (value !== req.body.password) {
       throw new Error("Passwords have to match!");
@@ -44,8 +43,9 @@ module.exports.login = [
           return Promise.reject("this email dosen't exists");
         }
       });
-    }),
+    })
+    .normalizeEmail()
+    .trim(),
   check("password", "password must be at least 5 characters")
-    .isAlphanumeric()
     .isLength({ min: 5 }),
 ];

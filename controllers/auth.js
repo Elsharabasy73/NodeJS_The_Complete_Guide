@@ -6,10 +6,9 @@ const sendgridTransport = require("nodemailer-sendgrid-transport");
 const { validationResult } = require("express-validator");
 
 const User = require("../models/user");
-const user = require("../models/user");
 
 const API_KEY =
-  "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";
+  "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";
 const SINGLE_SENDER = "sara.momo7112@gmail.com";
 
 const transporter = nodemailer.createTransport(
@@ -54,11 +53,10 @@ exports.getSignup = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
-
+  const { email, password } = req.body;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log("here2");
     return res.status(422).render("auth/login", {
       path: "/login",
       pageTitle: "login-PR",
@@ -87,6 +85,7 @@ exports.postLogin = (req, res, next) => {
             res.redirect("/");
           });
         } else {
+          req.flash("error", "Invalid email or password.");
           return res.redirect("/login");
         }
       });

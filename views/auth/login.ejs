@@ -21,7 +21,7 @@
               <div class="form-control">
                 <label for="password">Password</label>
                 <input class="<%=validationErrors.find(e=>e.path === 'password')? 'invalid':'' %>" type="password"
-                  name="password" id="password">
+                name="password" id="password">
               </div>
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <button class="btn" type="submit">Login</button>
