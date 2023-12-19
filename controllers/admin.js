@@ -85,9 +85,8 @@ exports.getEditProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
-      const error = new Error(err);
-      error.setHttpStatus = 500;
-      next(error);
+      err.setHttpStatus = 500;
+      next(err);
     });
 };
 
@@ -130,7 +129,10 @@ exports.postEditProduct = (req, res, next) => {
       product.description = updatedDesc;
       return product.save().then((result) => res.redirect("/admin/products"));
     })
-    .catch((err) => console.log(err));
+        .catch((err) => {
+      err.setHttpStatus = 500;
+      next(err);
+    });;
 };
 
 exports.getProducts = (req, res, next) => {

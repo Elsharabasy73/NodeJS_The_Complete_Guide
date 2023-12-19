@@ -89,7 +89,10 @@ exports.postLogin = (req, res, next) => {
         }
       });
     })
-    .catch((err) => console.log(err));
+        .catch((err) => {
+      err.setHttpStatus = 500;
+      next(err);
+    });;
 };
 
 exports.postSignup = (req, res, next) => {
@@ -132,9 +135,15 @@ exports.postSignup = (req, res, next) => {
           subject: "Signup successfully!",
           html: "<h1>hi from us. </h1>",
         })
-        .catch((err) => console.log(err));
+            .catch((err) => {
+      err.setHttpStatus = 500;
+      next(err);
+    });;
     })
-    .catch((err) => console.log(err));
+        .catch((err) => {
+      err.setHttpStatus = 500;
+      next(err);
+    });;
 };
 
 exports.postLogout = (req, res, next) => {
@@ -214,7 +223,10 @@ exports.getNewPassword = (req, res, next) => {
         userId: user._id.toString(),
       });
     })
-    .catch((err) => console.log(err));
+        .catch((err) => {
+      err.setHttpStatus = 500;
+      next(err);
+    });;
 };
 
 //update password
@@ -242,5 +254,8 @@ exports.postNewPassword = (req, res, next) => {
     .then((result) => {
       res.redirect("/login");
     })
-    .catch((err) => console.log(err));
+        .catch((err) => {
+      err.setHttpStatus = 500;
+      next(err);
+    });;
 };

@@ -94,4 +94,7 @@ mongoose
     // app.listen(3000,'192.168.1.6');
     console.log("listenning");
   })
-  .catch((err) => console.log(err));
+      .catch((err) => {
+      err.setHttpStatus = 500;
+      next(err);
+    });;
