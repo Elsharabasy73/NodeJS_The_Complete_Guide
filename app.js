@@ -47,6 +47,7 @@ app.use(flash());
 //now we can yse that flash iddleware any ware in our req object
 
 app.use((req, res, next) => {
+  throw new Error("dummy");
   if (!req.session.user) {
     return next();
   }
