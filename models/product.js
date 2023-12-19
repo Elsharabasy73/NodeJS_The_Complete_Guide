@@ -51,9 +51,9 @@ module.exports = mongoose.model("Product", productSchema);
 //         console.log('save/update');
 //       })
 //           .catch((err) => {
-      err.setHttpStatus = 500;
-      next(err);
-    });;
+    //   err.setHttpStatus = 500;
+    //   next(err);
+    // });;
 //   }
 
 //   static deleteById(prodId) {
@@ -77,9 +77,9 @@ module.exports = mongoose.model("Product", productSchema);
 //       .find()
 //       .toArray()
 //           .catch((err) => {
-      err.setHttpStatus = 500;
-      next(err);
-    });;
+    //   err.setHttpStatus = 500;
+    //   next(err);
+    // });;
 //   }
 //   static findById(prodId) {
 //     const db = getDb();
@@ -94,9 +94,9 @@ module.exports = mongoose.model("Product", productSchema);
 //         return product;
 //       })
 //           .catch((err) => {
-      err.setHttpStatus = 500;
-      next(err);
-    });;
+    //   err.setHttpStatus = 500;
+    //   next(err);
+    // });;
 //   }
 // }
 

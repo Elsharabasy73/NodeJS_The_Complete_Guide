@@ -47,7 +47,7 @@ app.use(flash());
 //now we can yse that flash iddleware any ware in our req object
 
 app.use((req, res, next) => {
-  throw new Error("dummy");
+  // throw new Error("dummy");//make your code go to the next error middleware
   if (!req.session.user) {
     return next();
   }
@@ -63,7 +63,7 @@ app.use((req, res, next) => {
       next();
     })
     .catch((err) => {
-      throw new Error(err);
+      next(new Error(err));
     });
 });
 
@@ -99,7 +99,7 @@ mongoose
     // app.listen(3000,'192.168.1.6');
     console.log("listenning");
   })
-      .catch((err) => {
-      err.setHttpStatus = 500;
-      next(err);
-    });;
+  .catch((err) => {
+    err.setHttpStatus = 500;
+    next(err);
+  });
