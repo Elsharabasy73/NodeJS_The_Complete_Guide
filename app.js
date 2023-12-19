@@ -28,7 +28,7 @@ app.set("views", "views");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
-const authRoutes = require("./routes/auth"); 
+const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -52,13 +52,18 @@ app.use((req, res, next) => {
   }
   User.findById(req.session.user._id)
     .then((user) => {
+      if (!user) {
+        return next();
+      }
       req.user = user;
       // console.log("login1", req.session.user.getCart);//undefinded
       // req.session.user = user;
       // console.log("login1", req.session.user.getCart);//[Function (anonymous)]
       next();
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      throw new Error(err);
+    });
 });
 
 //add a local fields will be send to the views.
@@ -74,6 +79,7 @@ app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
+app.get("/500", errorController.get500);
 app.use(errorController.get404);
 
 mongoose

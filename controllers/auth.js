@@ -8,7 +8,7 @@ const { validationResult } = require("express-validator");
 const User = require("../models/user");
 
 const API_KEY =
-  "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";
+  "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";
 const SINGLE_SENDER = "sara.momo7112@gmail.com";
 
 const transporter = nodemailer.createTransport(
@@ -56,7 +56,6 @@ exports.postLogin = (req, res, next) => {
   const { email, password } = req.body;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log("here2");
     return res.status(422).render("auth/login", {
       path: "/login",
       pageTitle: "login-PR",
@@ -73,7 +72,7 @@ exports.postLogin = (req, res, next) => {
   User.findOne({ email: email })
     .then((user) => {
       if (!user) {
-        req.flash("error", "Invalid email or password.");
+        req.flash("error", "Invalid email or password.E");
         return res.redirect("/login");
       }
       bcrypt.compare(password, user.password).then((doMatch) => {
@@ -85,7 +84,7 @@ exports.postLogin = (req, res, next) => {
             res.redirect("/");
           });
         } else {
-          req.flash("error", "Invalid email or password.");
+          req.flash("error", "Invalid email or password.P");
           return res.redirect("/login");
         }
       });
