@@ -1,6 +1,6 @@
 const Product = require("../models/product");
 const { validationResult } = require("express-validator");
-
+const mongoose = require("mongoose");
 exports.getAddProduct = (req, res, next) => {
   const errors = validationResult(req);
   res.render("admin/edit-product", {
@@ -9,7 +9,7 @@ exports.getAddProduct = (req, res, next) => {
     editing: false,
     hasErrors: false,
     errorMessage: null,
-    validationErrors:[],
+    validationErrors: [],
   });
 };
 
@@ -28,12 +28,12 @@ exports.postAddProduct = (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(422).render("admin/edit-product", {
       pageTitle: "Edit Product-PR",
-      path: "/admin/edit-product",
+      path: "/admin/add-product",
       editing: false,
       product: product,
       hasErrors: true,
       errorMessage: errors.array()[0].msg,
-      validationErrors:errors.array(),
+      validationErrors: errors.array(),
     });
   }
   // the save method used here is provided by mongoose not me.
@@ -42,7 +42,23 @@ exports.postAddProduct = (req, res, next) => {
     .then((result) => {
       res.redirect("/admin/products");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      //server side issue accured.
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+      // return res.redirect("/500");
+      // return res.status(500).render("admin/edit-product", {
+      //   pageTitle: "Edit Product-PR",
+      //   path: "/admin/add-product",
+      //   editing: false,
+      //   product: product,
+      //   hasErrors: true,
+      //   errorMessage: "Database opration failed, please try again laiter.",
+      //   validationErrors: [],
+      // });
+    });
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -54,6 +70,7 @@ exports.getEditProduct = (req, res, next) => {
 
   Product.findById(prodId)
     .then((product) => {
+      // throw new Error("dummy");
       if (!product) {
         return res.redirect("/");
       }
@@ -64,10 +81,14 @@ exports.getEditProduct = (req, res, next) => {
         product: product,
         hasErrors: false,
         errorMessage: null,
-        validationErrors:[],
+        validationErrors: [],
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+    });
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -94,7 +115,7 @@ exports.postEditProduct = (req, res, next) => {
       product: product,
       hasErrors: true,
       errorMessage: errors.array()[0].msg,
-      validationErrors:errors.array(),
+      validationErrors: errors.array(),
     });
   }
   //add product
@@ -109,7 +130,11 @@ exports.postEditProduct = (req, res, next) => {
       product.description = updatedDesc;
       return product.save().then((result) => res.redirect("/admin/products"));
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+    });
 };
 
 exports.getProducts = (req, res, next) => {

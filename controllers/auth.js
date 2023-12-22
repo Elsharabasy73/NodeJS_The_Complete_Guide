@@ -8,7 +8,7 @@ const { validationResult } = require("express-validator");
 const User = require("../models/user");
 
 const API_KEY =
-  "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";
+  "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";
 const SINGLE_SENDER = "sara.momo7112@gmail.com";
 
 const transporter = nodemailer.createTransport(
@@ -56,7 +56,6 @@ exports.postLogin = (req, res, next) => {
   const { email, password } = req.body;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log("here2");
     return res.status(422).render("auth/login", {
       path: "/login",
       pageTitle: "login-PR",
@@ -73,7 +72,7 @@ exports.postLogin = (req, res, next) => {
   User.findOne({ email: email })
     .then((user) => {
       if (!user) {
-        req.flash("error", "Invalid email or password.");
+        req.flash("error", "Invalid email or password.E");
         return res.redirect("/login");
       }
       bcrypt.compare(password, user.password).then((doMatch) => {
@@ -85,12 +84,16 @@ exports.postLogin = (req, res, next) => {
             res.redirect("/");
           });
         } else {
-          req.flash("error", "Invalid email or password.");
+          req.flash("error", "Invalid email or password.P");
           return res.redirect("/login");
         }
       });
     })
-    .catch((err) => console.log(err));
+        .catch((err) => {
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+    });;
 };
 
 exports.postSignup = (req, res, next) => {
@@ -133,9 +136,17 @@ exports.postSignup = (req, res, next) => {
           subject: "Signup successfully!",
           html: "<h1>hi from us. </h1>",
         })
-        .catch((err) => console.log(err));
+            .catch((err) => {
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+    });;
     })
-    .catch((err) => console.log(err));
+        .catch((err) => {
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+    });;
 };
 
 exports.postLogout = (req, res, next) => {
@@ -215,7 +226,11 @@ exports.getNewPassword = (req, res, next) => {
         userId: user._id.toString(),
       });
     })
-    .catch((err) => console.log(err));
+        .catch((err) => {
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+    });;
 };
 
 //update password
@@ -243,5 +258,9 @@ exports.postNewPassword = (req, res, next) => {
     .then((result) => {
       res.redirect("/login");
     })
-    .catch((err) => console.log(err));
+        .catch((err) => {
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+    });;
 };

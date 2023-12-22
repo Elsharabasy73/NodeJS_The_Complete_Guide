@@ -6,7 +6,6 @@ module.exports.signup = [
   check("email")
     .isEmail()
     .withMessage("Please enter a valid email.")
-    .normalizeEmail()
     .trim()
     .custom((value, { req }) => {
       // if (value === "abdo") {
@@ -44,8 +43,8 @@ module.exports.login = [
         }
       });
     })
-    .normalizeEmail()
     .trim(),
   check("password", "password must be at least 5 characters")
     .isLength({ min: 5 }),
 ];
+//normalizeemail

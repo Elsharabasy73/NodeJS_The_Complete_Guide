@@ -50,7 +50,10 @@ module.exports = mongoose.model("Product", productSchema);
 //       .then((result) => {
 //         console.log('save/update');
 //       })
-//       .catch((err) => console.log(err));
+//           .catch((err) => {
+    //   err.setHttpStatus = 500;
+    //   next(err);
+    // });;
 //   }
 
 //   static deleteById(prodId) {
@@ -73,7 +76,10 @@ module.exports = mongoose.model("Product", productSchema);
 //       .collection("products")
 //       .find()
 //       .toArray()
-//       .catch((err) => console.log(err));
+//           .catch((err) => {
+    //   err.setHttpStatus = 500;
+    //   next(err);
+    // });;
 //   }
 //   static findById(prodId) {
 //     const db = getDb();
@@ -87,7 +93,10 @@ module.exports = mongoose.model("Product", productSchema);
 //       .then((product) => {
 //         return product;
 //       })
-//       .catch((err) => console.log(err));
+//           .catch((err) => {
+    //   err.setHttpStatus = 500;
+    //   next(err);
+    // });;
 //   }
 // }
 

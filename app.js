@@ -28,7 +28,7 @@ app.set("views", "views");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
-const authRoutes = require("./routes/auth"); 
+const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -47,18 +47,24 @@ app.use(flash());
 //now we can yse that flash iddleware any ware in our req object
 
 app.use((req, res, next) => {
+  // throw new Error("dummy");//make your code go to the next error middleware
   if (!req.session.user) {
     return next();
   }
   User.findById(req.session.user._id)
     .then((user) => {
+      if (!user) {
+        return next();
+      }
       req.user = user;
       // console.log("login1", req.session.user.getCart);//undefinded
       // req.session.user = user;
       // console.log("login1", req.session.user.getCart);//[Function (anonymous)]
       next();
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      next(new Error(err));
+    });
 });
 
 //add a local fields will be send to the views.
@@ -74,7 +80,16 @@ app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
+app.get("/500", errorController.get500);
 app.use(errorController.get404);
+
+app.use((error, req, res, next) => {
+  res.status(500).render("500", {
+    pageTitle: "Page Not Found",
+    path: "/500",
+    isAuthenticated: req.isLoggedIn,
+  });
+});
 
 mongoose
   .connect(MONGODB_URL)
@@ -84,4 +99,7 @@ mongoose
     // app.listen(3000,'192.168.1.6');
     console.log("listenning");
   })
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    err.setHttpStatus = 500;
+    next(err);
+  });
