@@ -33,7 +33,20 @@ const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 //image name of the input filed hold the file.
-app.use(multer({dest:'images'}).single("image"));
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'images');
+  },
+  filename: function (req, file, cb) {
+    // You can customize the filename here
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
+  },
+});
+
+const upload = multer({ storage: storage });
+
+app.use(upload.single('image'));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
