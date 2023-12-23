@@ -33,20 +33,45 @@ const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 //image name of the input filed hold the file.
-const storage = multer.diskStorage({
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+const fileStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'images');
+    cb(null, "images");
   },
   filename: function (req, file, cb) {
-    // You can customize the filename here
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
+    //very important: took 2 h to fix. this name will chrash the code cause it contain : which can't be a valid name for a file.
+    // console.log(new Date().toISOString() + "-" + file.originalname);
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hour = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    const sec = String(date.getSeconds()).padStart(2, "0");
+
+    // Constructing the filename in the desired format
+    const formattedDate = `${year}y-${month}m-${day}d-${hour}h-${min}m-${sec}s`;
+    const originalname = file.originalname.replace(/\s+/g, "_"); // Replacing spaces with underscores
+    const filename = `${formattedDate}-${originalname}`;
+    cb(null, filename);
   },
 });
 
-const upload = multer({ storage: storage });
-
-app.use(upload.single('image'));
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+);
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
@@ -103,7 +128,6 @@ app.use((error, req, res, next) => {
   res.status(500).render("500", {
     pageTitle: "Page Not Found",
     path: "/500",
-    isAuthenticated: req.isLoggedIn,
   });
 });
 

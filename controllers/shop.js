@@ -34,6 +34,7 @@ exports.getProduct = (req, res, next) => {
       });
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -80,6 +81,7 @@ exports.postCart = (req, res, next) => {
       res.redirect("/cart");
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -95,6 +97,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
       res.redirect("/cart");
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -117,6 +120,7 @@ exports.postOrder = (req, res, next) => {
     .addOrder()
     .then((result) => res.redirect("/orders"))
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);

@@ -90,6 +90,7 @@ exports.postLogin = (req, res, next) => {
       });
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -137,12 +138,14 @@ exports.postSignup = (req, res, next) => {
           html: "<h1>hi from us. </h1>",
         })
             .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
     });;
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -227,6 +230,7 @@ exports.getNewPassword = (req, res, next) => {
       });
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -259,6 +263,7 @@ exports.postNewPassword = (req, res, next) => {
       res.redirect("/login");
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
