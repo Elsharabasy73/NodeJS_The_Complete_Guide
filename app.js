@@ -74,7 +74,7 @@ app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
 );
 app.use(express.static(path.join(__dirname, "public")));
-// if we have a request start
+// if we have a request start with /image the requist will be handled from the file images
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   session({
