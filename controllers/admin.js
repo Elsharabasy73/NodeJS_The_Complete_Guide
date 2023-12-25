@@ -14,16 +14,31 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
-  const { title, imageUrl, price, description } = req.body;
+  console.log("post add products");
+  const { title, price, description } = req.body;
+  const image = req.file;
+
   const product = new Product({
     title: title,
     price: price,
-    imageUrl: imageUrl,
     description: description,
     //you can store the entire user object and mongoose will just pick up the user._id it self
     userId: req.user,
   });
   //validate
+  if (!image) {
+    return res.status(422).render("admin/edit-product", {
+      pageTitle: "Edit Product-PR",
+      path: "/admin/add-product",
+      editing: false,
+      product: product,
+      hasErrors: true,
+      errorMessage: 'Attach file is not an image.',
+      validationErrors: [],
+    });
+  }
+  product.imageUrl = image.path;
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).render("admin/edit-product", {
@@ -43,8 +58,8 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch((err) => {
-      console.log(err);
       //server side issue accured.
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -85,6 +100,7 @@ exports.getEditProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -95,13 +111,11 @@ exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
-  const updatedImageUrl = req.body.imageUrl;
+  const image = req.file;
   const updatedDesc = req.body.description;
-  console.log();
   const product = {
     title: updatedTitle,
     price: updatedPrice,
-    imageUrl: updatedImageUrl,
     description: updatedDesc,
     _id: prodId,
   };
@@ -126,11 +140,14 @@ exports.postEditProduct = (req, res, next) => {
       }
       product.title = updatedTitle;
       product.price = updatedPrice;
-      product.imageUrl = updatedImageUrl;
       product.description = updatedDesc;
+      if (image) {
+        product.imageUrl = image.path;
+      }
       return product.save().then((result) => res.redirect("/admin/products"));
     })
     .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);

@@ -2,10 +2,6 @@ const { check, body } = require("express-validator");
 
 module.exports.postAddProduct = [
   body("title", "choose a valid title").isString().trim().isLength({ min: 3 }),
-  body("imageUrl", "choose a valid imageUrl")
-    .isURL()
-    .trim()
-    .isLength({ min: 3 }),
   body("price", "choose a valid price")
     .trim()
     .isLength({ min: 1 })

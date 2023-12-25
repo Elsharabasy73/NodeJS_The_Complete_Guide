@@ -7,11 +7,12 @@ const mongoose = require("mongoose");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flash = require("connect-flash");
+const multer = require("multer");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
-const MONGODB_URL =
+const MONGODB_URL = 
   // "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop"
   // "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop?retryWrites=true&w=majority"
   "mongodb://localhost:27017/";
@@ -23,6 +24,7 @@ const store = new MongoDBStore({
   collection: "sessions",
 });
 const csrfProtection = csrf();
+
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -31,7 +33,49 @@ const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
+//image name of the input filed hold the file.
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+const fileStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "images");
+  },
+  filename: function (req, file, cb) {
+    //very important: took 2 h to fix. this name will chrash the code cause it contain : which can't be a valid name for a file.
+    // console.log(new Date().toISOString() + "-" + file.originalname);
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hour = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    const sec = String(date.getSeconds()).padStart(2, "0");
+
+    // Constructing the filename in the desired format
+    const formattedDate = `${year}y-${month}m-${day}d-${hour}h-${min}m-${sec}s`;
+    const originalname = file.originalname.replace(/\s+/g, "_"); // Replacing spaces with underscores
+    const filename = `${formattedDate}-${originalname}`;
+    cb(null, filename);
+  },
+});
+
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+);
 app.use(express.static(path.join(__dirname, "public")));
+// if we have a request start with /image the requist will be handled from the file images
+app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   session({
     secret: "my secret",
@@ -87,7 +131,6 @@ app.use((error, req, res, next) => {
   res.status(500).render("500", {
     pageTitle: "Page Not Found",
     path: "/500",
-    isAuthenticated: req.isLoggedIn,
   });
 });
 

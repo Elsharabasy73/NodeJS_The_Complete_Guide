@@ -8,7 +8,7 @@ const { validationResult } = require("express-validator");
 const User = require("../models/user");
 
 const API_KEY =
-  "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";
+  "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";
 const SINGLE_SENDER = "sara.momo7112@gmail.com";
 
 const transporter = nodemailer.createTransport(
@@ -90,6 +90,7 @@ exports.postLogin = (req, res, next) => {
       });
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -137,12 +138,14 @@ exports.postSignup = (req, res, next) => {
           html: "<h1>hi from us. </h1>",
         })
             .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
     });;
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -227,6 +230,7 @@ exports.getNewPassword = (req, res, next) => {
       });
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
@@ -259,6 +263,7 @@ exports.postNewPassword = (req, res, next) => {
       res.redirect("/login");
     })
         .catch((err) => {
+      console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
