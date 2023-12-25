@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const PDFDocument = require('pdfkit');
+const PDFDocument = require("pdfkit");
 
 const Product = require("../models/product");
 const user = require("../models/user");
@@ -144,29 +144,41 @@ exports.getInvoice = (req, res, next) => {
         const error = new Error("No order was found.");
         return next(error);
       }
-      const file = fs.createReadStream(invoicePath);
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
         "inline; filename='" + invoiceName + "'"
       );
+      // const file = fs.createReadStream(invoicePath);
       //use readable streams to pipe their output to a writable stream.
-      file.pipe(res);
+      // file.pipe(res);
+      const pdfDoc = new PDFDocument(); //readable stream
+      pdfDoc.pipe(res);
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      //file content.
+      pdfDoc.fontSize(26).text("Invoice", {
+        underline: true,
+      });
+      pdfDoc.text("-----------------------");
+      let totalPrice = 0;
+      order.products.forEach((prod) => {
+        totalPrice += prod.quantity * prod.product.price;
+        pdfDoc
+          .fontSize(14)
+          .text(
+            prod.product.title +
+              " - " +
+              prod.quantity +
+              " x " +
+              "$" +
+              prod.product.price
+          );
+      });
+      pdfDoc.text("---");
+      pdfDoc.fontSize(20).text("Total Price: $" + totalPrice);
+      pdfDoc.end();
     })
     .catch((err) => {
       console.log(err);
     });
-  // fs.readFile(invoicePath, (err, data) => {
-  //   if (err) {
-  //     console.log(err);
-  //     const error = new Error(err);
-  //     return next(error);
-  //   }
-  //   res.setHeader("Content-Type", "application/pdf");
-  //   res.setHeader(
-  //     "Content-Disposition",
-  //     "inline; filename='" + invoiceName + "'"
-  //   );
-  //   res.send(data);
-  // });
 };
