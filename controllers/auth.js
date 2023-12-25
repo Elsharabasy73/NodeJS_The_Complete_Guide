@@ -8,7 +8,7 @@ const { validationResult } = require("express-validator");
 const User = require("../models/user");
 
 const API_KEY =
-  "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";
+  "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";
 const SINGLE_SENDER = "sara.momo7112@gmail.com";
 
 const transporter = nodemailer.createTransport(
