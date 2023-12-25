@@ -1,6 +1,9 @@
+const mongoose = require("mongoose");
+
 const Product = require("../models/product");
 const { validationResult } = require("express-validator");
-const mongoose = require("mongoose");
+const fileHelper = require("../util/file");
+
 exports.getAddProduct = (req, res, next) => {
   const errors = validationResult(req);
   res.render("admin/edit-product", {
@@ -33,7 +36,7 @@ exports.postAddProduct = (req, res, next) => {
       editing: false,
       product: product,
       hasErrors: true,
-      errorMessage: 'Attach file is not an image.',
+      errorMessage: "Attach file is not an image.",
       validationErrors: [],
     });
   }
@@ -144,7 +147,10 @@ exports.postEditProduct = (req, res, next) => {
       if (image) {
         product.imageUrl = image.path;
       }
-      return product.save().then((result) => res.redirect("/admin/products"));
+      return product.save().then((result) => {
+        fileHelper.deleteFile(product.imageUrl);
+        res.redirect("/admin/products");
+      });
     })
     .catch((err) => {
       console.log(err);
@@ -171,8 +177,21 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-
-  Product.deleteOne({ _id: prodId, userId: req.user._id }).then((resutl) => {
-    res.redirect("/admin/products");
-  });
+  let imageUrl;
+  Product.findById(prodId)
+    .then((prod) => {
+      imageUrl = prod.imageUrl;
+      return Product.deleteOne({ _id: prodId, userId: req.user._id }).then(
+        (resutl) => {
+          fileHelper.deleteFile(prod.imageUrl);
+          res.redirect("/admin/products");
+        }
+      );
+    })
+    .catch((err) => {
+      console.log(err);
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+    });
 };
