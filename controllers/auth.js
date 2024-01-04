@@ -117,39 +117,50 @@ exports.postSignup = (req, res, next) => {
       validationErrors: errors.array(),
     });
   }
-  bcrypt
-    .hash(password, 12)
-    .then((hashedPassword) => {
-      const user = new User({
-        name: "temp",
-        email: email,
-        password: hashedPassword,
-        cart: { items: [] },
-      });
-      return user.save();
-    })
-    .then((result) => {
-      res.redirect("/login");
-      return transporter
-        .sendMail({
-          to: email,
-          from: SINGLE_SENDER,
-          subject: "Signup successfully!",
-          html: "<h1>hi from us. </h1>",
-        })
-            .catch((err) => {
+  crypto.randomBytes(32, (err, buffer) => {
+    if (err) {
       console.log(err);
-      const error = new Error(err);
-      error.setHttpStatus = 500;
-      next(error);
-    });;
-    })
-        .catch((err) => {
-      console.log(err);
-      const error = new Error(err);
-      error.setHttpStatus = 500;
-      next(error);
-    });;
+      //flash an error 1
+      return res.redirect("/signup");
+    }
+    const token = buffer.toString("hex");
+    bcrypt
+      .hash(password, 12)
+      .then((hashedPassword) => {
+        const user = new User({
+          name: name || "temp",
+          email: email,
+          password: hashedPassword,
+          isConfirmed: false,
+          confirmToken: token,
+          confirmTokenExpiration: Date.now() + 60000 * 120, //120min
+          cart: { items: [] },
+        });
+        return user.save();
+      })
+      .then((result) => {
+        res.redirect("/login");
+        return transporter
+          .sendMail({
+            to: email,
+            from: SINGLE_SENDER,
+            subject: "Signup successfully!",
+            html: `<h2>Dear ${email}</h2>
+
+            <p>Thank you for signing up for our platform! </p>
+            <p>To ensure that you have provided a valid email address</p>
+            <p> please click on the link below to verify your account: <a href='http://localhost:3000/users/confirm/${token}'> Verify </a> </p>
+            <p>If you did not sign up for our platform, please ignore this email.</p>
+            <p>Thank you for your cooperation.</p>
+            <p>Best regards,</p>
+            <p>College Team</p>
+
+            `,
+          })
+          .catch((err) => console.log(err));
+      })
+      .catch((err) => console.log(err));
+  });
 };
 
 exports.postLogout = (req, res, next) => {
@@ -269,3 +280,24 @@ exports.postNewPassword = (req, res, next) => {
       next(error);
     });;
 };
+
+exports.getConfirmSignup = (req, res, next) => {
+  exports.getConfirmSignup = (req, res, next) => {
+    const token = req.params.token;
+    console.log(token);
+    User.findOne({
+      confirmToken: token,
+      confirmTokenExpiration: { $gt: Date.now() },
+    }).then((user) => {
+      if (!user) {
+        console.log("confirmfailed");
+      }
+      user.isConfirmed = true;
+      user.confirmToken = undefined;
+      user.confirmTokenExpiration = undefined;
+      return user.save().then(() => {
+        return res.render("auth/confirm-signup");
+      });
+    });
+  };
+}
