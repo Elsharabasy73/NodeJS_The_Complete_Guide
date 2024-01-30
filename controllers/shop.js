@@ -6,7 +6,7 @@ const Product = require("../models/product");
 const user = require("../models/user");
 const Order = require("../models/orders");
 
-const ITEM_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 2;
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then((products) => {
@@ -49,17 +49,28 @@ exports.getProduct = (req, res, next) => {
 exports.getIndex = (req, res, next) => {
   console.log("index");
   const { page } = req.query;
-  console.log(page);
+
+  let totalitems;
   //.find give us the products not the curser
   //we could alse use .find().curser()
-  Product.find()
-    .skip((page - 1) * ITEM_PER_PAGE)
-    .limit(ITEM_PER_PAGE)
+  Product.countDocuments()
+    .then((numProducts) => {
+      totalitems = numProducts;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products) => {
       res.render("shop/index", {
         prods: products,
         pageTitle: "Shop",
         path: "/",
+        totatProducts: totatltems,
+        hasNextPage: ITEMS_PER_PAGE * page < totatltems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        tastPage: Math.ceil(totatltems / ITEMS_PER_PAGE),
       });
     })
     .catch((err) => console.log("getindex-shopcontroller", err));
