@@ -5,6 +5,8 @@ const PDFDocument = require("pdfkit");
 const Product = require("../models/product");
 const user = require("../models/user");
 const Order = require("../models/orders");
+
+const ITEM_PER_PAGE = 2;
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then((products) => {
@@ -45,9 +47,14 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
+  console.log("index");
+  const { page } = req.query;
+  console.log(page);
   //.find give us the products not the curser
   //we could alse use .find().curser()
   Product.find()
+    .skip((page - 1) * ITEM_PER_PAGE)
+    .limit(ITEM_PER_PAGE)
     .then((products) => {
       res.render("shop/index", {
         prods: products,
