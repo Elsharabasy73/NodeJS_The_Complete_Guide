@@ -37,7 +37,7 @@ module.exports.login = [
   check("email", "Envalid  email.")
     .isEmail()
     .custom((value, { req }) => {
-      return User.findOne({ email: value }).then((user) => {
+      return User.findOne({ email: value , isConfirmed:true}).then((user) => {
         if (!user) {
           return Promise.reject("this email dosen't exists");
         }
