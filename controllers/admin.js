@@ -177,8 +177,9 @@ exports.getProducts = (req, res, next) => {
     .catch((err) => console.log("getindex-shopcontroller", err));
 };
 
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
+exports.deleteProduct = (req, res, next) => {
+  console.log("teste");
+  const prodId = req.params.productId;
   let imageUrl;
   Product.findById(prodId)
     .then((prod) => {
@@ -192,14 +193,12 @@ exports.postDeleteProduct = (req, res, next) => {
       return Product.deleteOne({ _id: prodId, userId: req.user._id }).then(
         (resutl) => {
           fileHelper.deleteFile(prod.imageUrl);
-          res.redirect("/admin/products");
+          res.status(200).json({ message: "product was deleted" });
         }
       );
     })
     .catch((err) => {
       console.log(err);
-      const error = new Error(err);
-      error.setHttpStatus = 500;
-      next(error);
+      res.status(500).json({ message: "failed to delete this product." });
     });
 };
