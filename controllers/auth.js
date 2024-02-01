@@ -8,8 +8,8 @@ const { validationResult } = require("express-validator");
 const User = require("../models/user");
 
 const API_KEY =
-  "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";
-const SINGLE_SENDER = "sara.momo7112@gmail.com";
+  "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";
+const SINGLE_SENDER = "'furniture' sara.momo7112@gmail.com";
 
 const transporter = nodemailer.createTransport(
   sendgridTransport({
@@ -117,39 +117,51 @@ exports.postSignup = (req, res, next) => {
       validationErrors: errors.array(),
     });
   }
-  bcrypt
-    .hash(password, 12)
-    .then((hashedPassword) => {
-      const user = new User({
-        name: "temp",
-        email: email,
-        password: hashedPassword,
-        cart: { items: [] },
-      });
-      return user.save();
-    })
-    .then((result) => {
-      res.redirect("/login");
-      return transporter
-        .sendMail({
-          to: email,
-          from: SINGLE_SENDER,
-          subject: "Signup successfully!",
-          html: "<h1>hi from us. </h1>",
-        })
-            .catch((err) => {
+  crypto.randomBytes(32, (err, buffer) => {
+    if (err) {
       console.log(err);
-      const error = new Error(err);
-      error.setHttpStatus = 500;
-      next(error);
-    });;
-    })
-        .catch((err) => {
-      console.log(err);
-      const error = new Error(err);
-      error.setHttpStatus = 500;
-      next(error);
-    });;
+      //flash an error 1
+      return res.redirect("/signup");
+    }
+    const token = buffer.toString("hex");
+    bcrypt
+      .hash(password, 12)
+      .then((hashedPassword) => {
+        const user = new User({
+          name:"temp",
+          email: email,
+          password: hashedPassword,
+          isConfirmed: false,
+          confirmToken: token,
+          confirmTokenExpiration: Date.now() + 60000 * 120, //120min
+          cart: { items: [] },
+        });
+        return user.save();
+      })
+      .then((result) => {
+        res.redirect("/login");
+        return console.log(`http://localhost:3000/confirm/${token}`);
+        // return transporter
+        //   .sendMail({
+        //     to: email,
+        //     from: SINGLE_SENDER,
+        //     subject: "Signup successfully!",
+        //     html: `<h2>Dear ${email}</h2>
+
+        //     <p>Thank you for signing up for our platform! </p>
+        //     <p>To ensure that you have provided a valid email address</p>
+        //     <p> please click on the link below to verify your account: <a href='https://w5vm9jzj-3000.uks1.devtunnels.ms/confirm/${token}'> Verify </a> </p>
+        //     <p>If you did not sign up for our platform, please ignore this email.</p>
+        //     <p>Thank you for your cooperation.</p>
+        //     <p>Best regards,</p>
+        //     <p>College Team</p>
+
+        //     `,
+          // })
+          // .catch((err) => console.log(err));
+      })
+      .catch((err) => console.log(err));
+  });
 };
 
 exports.postLogout = (req, res, next) => {
@@ -202,7 +214,7 @@ exports.postReset = (req, res, next) => {
               subject: "Reset your password!",
               html: `
               <h1>Ready to Reset?</h1>
-              <p> Click this <a href='http://localhost:3000/reset/${token}'> link </a> to set a new password</p>
+              <p> Click this <a href='https://w5vm9jzj-3000.uks1.devtunnels.ms/reset/${token}'> link </a> to set a new password</p>
               `,
             })
             .catch((err) => console.log("asdfa", err));
@@ -268,4 +280,23 @@ exports.postNewPassword = (req, res, next) => {
       error.setHttpStatus = 500;
       next(error);
     });;
+};
+
+exports.getConfirmSignup = (req, res, next) => {
+  const token = req.params.token;
+  console.log(token);
+  User.findOne({
+    confirmToken: token,
+    confirmTokenExpiration: { $gt: Date.now() },
+  }).then((user) => {
+    if (!user) {
+      return console.log("confirmfailed");
+    }
+    user.isConfirmed = true;
+    user.confirmToken = undefined;
+    user.confirmTokenExpiration = undefined;
+    return user.save().then(() => {
+      return res.render("auth/confirm-signup");
+    });
+  });
 };

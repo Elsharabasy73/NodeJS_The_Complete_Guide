@@ -37,7 +37,8 @@ module.exports.login = [
   check("email", "Envalid  email.")
     .isEmail()
     .custom((value, { req }) => {
-      return User.findOne({ email: value }).then((user) => {
+      return User.findOne({ email: value , isConfirmed:true}).then((user) => {
+        console.log(value, user);
         if (!user) {
           return Promise.reject("this email dosen't exists");
         }
@@ -45,6 +46,6 @@ module.exports.login = [
     })
     .trim(),
   check("password", "password must be at least 5 characters")
-    .isLength({ min: 5 }),
+    .isLength({ min: 1 }),
 ];
 //normalizeemail

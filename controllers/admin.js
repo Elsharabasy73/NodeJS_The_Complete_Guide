@@ -148,7 +148,9 @@ exports.postEditProduct = (req, res, next) => {
         product.imageUrl = image.path;
       }
       return product.save().then((result) => {
-        fileHelper.deleteFile(product.imageUrl);
+        if (image) {
+          fileHelper.deleteFile(product.imageUrl);
+        }
         res.redirect("/admin/products");
       });
     })
@@ -180,6 +182,12 @@ exports.postDeleteProduct = (req, res, next) => {
   let imageUrl;
   Product.findById(prodId)
     .then((prod) => {
+      console.log("delete prod", prod);
+      if (!prod) {
+        return res.redirect("/admin/products").then((params) => {
+          console.log("product url not found");
+        });
+      }
       imageUrl = prod.imageUrl;
       return Product.deleteOne({ _id: prodId, userId: req.user._id }).then(
         (resutl) => {

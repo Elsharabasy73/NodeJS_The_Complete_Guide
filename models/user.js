@@ -8,6 +8,9 @@ const userSchema = new Schema({
   name: { type: String },
   email: { type: String, required: true },
   password: { type: String, required: true },
+  isConfirmed: { type: Boolean },
+  confirmToken: String,
+  confirmTokenExpiration: Date,
   resetToken: String,
   resetTokenExpiration: Date,
   cart: {
