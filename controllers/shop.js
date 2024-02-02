@@ -105,7 +105,7 @@ exports.getCart = (req, res, next) => {
   // console.log("user", req.session.user);
   // console.log("user", req.user);
 
-  req.user.getCart().then((products) => {
+  req.user.getCartItems().then((products) => {
     res.render("shop/cart", {
       path: "/cart",
       pageTitle: "Your Cart",
@@ -171,7 +171,7 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getCheckout = (req, res, next) => {
-  req.user.getCart().then((products) => {
+  req.user.getCartItems().then((products) => {
     console.log(products);///
 
     const totalSum = products.reduce((accumulator, currentProduct) => {
