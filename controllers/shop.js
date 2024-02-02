@@ -7,7 +7,7 @@ const Product = require("../models/product");
 const user = require("../models/user");
 const Order = require("../models/orders");
 
-const ITEMS_PER_PAGE = 1;
+const ITEMS_PER_PAGE = 2;
 exports.getProducts = (req, res, next) => {
   const page = +req.query.page || 1;
   let totalItems;
@@ -171,9 +171,18 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getCheckout = (req, res, next) => {
-  res.render("shop/checkout", {
-    path: "/checkout",
-    pageTitle: "Checkout",
+  req.user.getCart().then((products) => {
+    console.log(products);///
+
+    const totalSum = products.reduce((accumulator, currentProduct) => {
+      return accumulator + currentProduct.price * currentProduct.quantity;
+    }, 0);
+    res.render("shop/checkout", {
+      path: "/checkout",
+      pageTitle: "Checkout",
+      products: products,
+      totalSum: totalSum,
+    });
   });
 };
 
