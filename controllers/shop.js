@@ -1,13 +1,16 @@
-"use strict";
 const path = require("path");
 const fs = require("fs");
 const PDFDocument = require("pdfkit");
+const stripe = require("stripe")(
+  "sk_test_51OfVIOJyKkHwBXZ9kCebRobcgZv8GsPtFgbfLWBPj1ZUXGHe75VbS89pEAzuGVHK4057sRsnkQ7o9z7jfLkO9OVN00TmPVS552"
+);
 
 const Product = require("../models/product");
 const user = require("../models/user");
 const Order = require("../models/orders");
+const domain = require("../util/mydomain");
 
-const ITEMS_PER_PAGE = 1;
+const ITEMS_PER_PAGE = 2;
 exports.getProducts = (req, res, next) => {
   const page = +req.query.page || 1;
   let totalItems;
@@ -105,7 +108,7 @@ exports.getCart = (req, res, next) => {
   // console.log("user", req.session.user);
   // console.log("user", req.user);
 
-  req.user.getCart().then((products) => {
+  req.user.getCartItems().then((products) => {
     res.render("shop/cart", {
       path: "/cart",
       pageTitle: "Your Cart",
@@ -158,6 +161,18 @@ exports.getOrders = (req, res, next) => {
   });
 };
 
+exports.getCheckoutSuccess = (req, res, next) => {
+  req.user
+    .addOrder()
+    .then((result) => res.redirect("/orders"))
+    .catch((err) => {
+      console.log(err);
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+    });
+};
+
 exports.postOrder = (req, res, next) => {
   req.user
     .addOrder()
@@ -171,10 +186,54 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getCheckout = (req, res, next) => {
-  res.render("shop/checkout", {
-    path: "/checkout",
-    pageTitle: "Checkout",
-  });
+  const myDomain = domain(req);
+  console.log(myDomain);
+  let products;
+  let total = 0;
+  req.user
+    .getCartItems()
+    .then((cartProducts) => {
+      const totalSum = cartProducts.reduce((accumulator, currentProduct) => {
+        return accumulator + currentProduct.price * currentProduct.quantity;
+      }, 0);
+      total = totalSum;
+      products = cartProducts;
+
+      return stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: cartProducts.map((p) => {
+          return {
+            quantity: p.quantity,
+            price_data: {
+              currency: "usd",
+              unit_amount: p.price * 100,
+              product_data: {
+                name: p.title,
+                description: p.description,
+              },
+            },
+          };
+        }),
+        mode: "payment",
+        success_url: `${myDomain}/checkout/success`,
+        cancel_url: `${myDomain}/checkout/cancel`,
+      });
+    })
+    .then((session) => {
+      res.render("shop/checkout", {
+        path: "/checkout",
+        pageTitle: "Checkout",
+        products: products,
+        totalSum: total,
+        sessionId: session.id,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
+    });
 };
 
 exports.getInvoice = (req, res, next) => {

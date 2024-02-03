@@ -60,7 +60,7 @@ userSchema.methods.addToCart = function (product) {
   return this.save();
 };
 
-userSchema.methods.getCart = function () {
+userSchema.methods.getCartItems = function () {
   return this.populate("cart.items.productId").then((user) => {
     const products = [];
     user.cart.items.forEach((element) => {

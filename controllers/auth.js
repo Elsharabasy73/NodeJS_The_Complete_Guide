@@ -6,6 +6,7 @@ const sendgridTransport = require("nodemailer-sendgrid-transport");
 const { validationResult } = require("express-validator");
 
 const User = require("../models/user");
+const domain = require("../util/mydomain");
 
 const API_KEY =
   "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";
@@ -89,12 +90,12 @@ exports.postLogin = (req, res, next) => {
         }
       });
     })
-        .catch((err) => {
+    .catch((err) => {
       console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
-    });;
+    });
 };
 
 exports.postSignup = (req, res, next) => {
@@ -128,7 +129,7 @@ exports.postSignup = (req, res, next) => {
       .hash(password, 12)
       .then((hashedPassword) => {
         const user = new User({
-          name:"temp",
+          name: "temp",
           email: email,
           password: hashedPassword,
           isConfirmed: false,
@@ -140,27 +141,34 @@ exports.postSignup = (req, res, next) => {
       })
       .then((result) => {
         res.redirect("/login");
-        return console.log(`http://localhost:3000/confirm/${token}`);
-        // return transporter
-        //   .sendMail({
-        //     to: email,
-        //     from: SINGLE_SENDER,
-        //     subject: "Signup successfully!",
-        //     html: `<h2>Dear ${email}</h2>
 
-        //     <p>Thank you for signing up for our platform! </p>
-        //     <p>To ensure that you have provided a valid email address</p>
-        //     <p> please click on the link below to verify your account: <a href='https://w5vm9jzj-3000.uks1.devtunnels.ms/confirm/${token}'> Verify </a> </p>
-        //     <p>If you did not sign up for our platform, please ignore this email.</p>
-        //     <p>Thank you for your cooperation.</p>
-        //     <p>Best regards,</p>
-        //     <p>College Team</p>
+        return transporter.sendMail({
+          to: email,
+          from: SINGLE_SENDER,
+          subject: "Signup successfully!",
+          html: `<h2>Dear ${email}</h2>
 
-        //     `,
-          // })
-          // .catch((err) => console.log(err));
+            <p>Thank you for signing up for our platform! </p>
+            <p>To ensure that you have provided a valid email address</p>
+            <p> please click on the link below to verify your account: <a href='${domain(
+              req
+            )}/confirm/${token}'> Verify </a> </p>
+            <p>If you did not sign up for our platform, please ignore this email.</p>
+            <p>Thank you for your cooperation.</p>
+            <p>Best regards,</p>
+            <p>College Team</p>
+
+            `,
+        });
+        // .catch((err) => console.log(err));
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(`${domain(req)}/confirm/${token}`);
+        console.log(err);
+        const error = new Error(err);
+        error.setHttpStatus = 500;
+        next(error);
+      });
   });
 };
 
@@ -241,12 +249,12 @@ exports.getNewPassword = (req, res, next) => {
         userId: user._id.toString(),
       });
     })
-        .catch((err) => {
+    .catch((err) => {
       console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
-    });;
+    });
 };
 
 //update password
@@ -274,12 +282,12 @@ exports.postNewPassword = (req, res, next) => {
     .then((result) => {
       res.redirect("/login");
     })
-        .catch((err) => {
+    .catch((err) => {
       console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
       next(error);
-    });;
+    });
 };
 
 exports.getConfirmSignup = (req, res, next) => {
