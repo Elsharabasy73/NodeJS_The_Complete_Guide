@@ -8,6 +8,7 @@ const stripe = require("stripe")(
 const Product = require("../models/product");
 const user = require("../models/user");
 const Order = require("../models/orders");
+const domain = require("../util/mydomain");
 
 const ITEMS_PER_PAGE = 2;
 exports.getProducts = (req, res, next) => {
@@ -185,8 +186,8 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getCheckout = (req, res, next) => {
-  // => http://localhost:3000
-  const domain = req.protocol + "://" + req.get("host");
+  const myDomain = domain(req);
+  console.log(myDomain);
   let products;
   let total = 0;
   req.user
@@ -214,8 +215,8 @@ exports.getCheckout = (req, res, next) => {
           };
         }),
         mode: "payment",
-        success_url: `${domain}/checkout/success`,
-        cancel_url: `${domain}/checkout/cancel`,
+        success_url: `${myDomain}/checkout/success`,
+        cancel_url: `${myDomain}/checkout/cancel`,
       });
     })
     .then((session) => {
