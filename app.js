@@ -11,15 +11,14 @@ const multer = require("multer");
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
-const MONGODB_URL =
-  // "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop";
-  // "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop?retryWrites=true&w=majority"
-  "mongodb://localhost:27017/";
-
+const MONGODB_URI = 
+  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.vclsggt.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}`;
+// "mongodb://localhost:27017/";
+console.log(MONGODB_URI);
 const app = express();
 const store = new MongoDBStore({
   //uri not url be careful
-  uri: MONGODB_URL,
+  uri: MONGODB_URI,
   collection: "sessions",
 });
 const csrfProtection = csrf();
@@ -135,14 +134,14 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(MONGODB_URL)
+  .connect(MONGODB_URI)
   .then((result) => {
     console.log("conneted to the db");
-    app.listen(3000);
-    // app.listen(3000,'192.168.1.6');
+    // app.listen(3000);
+    app.listen(process.env.PORT || 3000);
     console.log("listenning");
   })
   .catch((err) => {
     err.setHttpStatus = 500;
-    next(err);
+    // next(err);
   });

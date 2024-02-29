@@ -5,8 +5,10 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cls && nodemon app.js",
-    "start-server": "node app.js"
+    "start": "MONGO_USER=abdomake73 MONGO_PASSWORD=xlsgzIvu2CYeOTrg MONGO_DEFAULT_DATABASE=shop node app.js",
+    "start-server": "node app.js",
+    "start:dev":"clear &&  nodemon app.js"
+
   },
   "author": "Maximilian Schwarzmüller",
   "license": "ISC",
