@@ -1,4 +1,7 @@
 const path = require("path");
+const https = require("https");
+const fs = require("fs");
+
 const express = require("express");
 const session = require("express-session");
 const bodyParser = require("body-parser");
@@ -8,6 +11,7 @@ const csrf = require("csurf");
 const flash = require("connect-flash");
 const multer = require("multer");
 const helmet = require("helmet");
+const compression = require("compression");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -23,6 +27,10 @@ const store = new MongoDBStore({
 });
 const csrfProtection = csrf();
 
+//will block code execution until the file is read
+const privateKey = fs.readFileSync("server.key");
+const certificate = fs.readFileSync("server.cert");
+
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -31,6 +39,7 @@ const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 
 app.use(helmet());
+app.use(compression());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 //image name of the input filed hold the file.
@@ -141,9 +150,13 @@ mongoose
     console.log("conneted to the db");
     // app.listen(3000);
     app.listen(process.env.PORT || 3000);
+    // https.createServer({ key: privateKey, cert: certificate }, app).listen(3000);
     console.log("listenning");
   })
   .catch((err) => {
     err.setHttpStatus = 500;
     // next(err);
   });
+//dive deeper in helmet
+//learn more about comprission library
+//morgan pacage to log the request like the logs in render. in the deploy module.
