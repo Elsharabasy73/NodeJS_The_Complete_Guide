@@ -102,7 +102,7 @@ exports.getEditProduct = (req, res, next) => {
   }
   const prodId = req.params.productId; //:productId"
 
-  Product.findOne({ _id: prodId, creator: req.user._id })
+  Product.findById(prodId)
     .then((product) => {
       // throw new Error("dummy");
       if (!product) {
@@ -166,7 +166,7 @@ exports.postEditProduct = (req, res, next) => {
     });
   }
   //add product
-  Product.findOne({ _id: prodId, creator: req.user._id })
+  Product.findById(prodId)
     .then((product) => {
       if (!product) {
         [image, ...galleryImages]
@@ -213,7 +213,7 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   //populate the field you want with all the data field not just the id
-  Product.find({ creator: req.user._id })
+  Product.find()
     .sort({ createdAt: -1 })
     // .select('title price -_id')
     // .populate("userId", "name")
@@ -229,7 +229,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.deleteProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  Product.findOneAndDelete({ _id: prodId, creator: req.user._id })
+  Product.findByIdAndDelete(prodId)
     .then((prod) => {
       if (!prod) {
         return res.status(404).json({ message: "Product was not found." });
