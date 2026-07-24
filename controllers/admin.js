@@ -1,5 +1,3 @@
-const mongoose = require("mongoose");
-
 const Product = require("../models/product");
 const { validationResult } = require("express-validator");
 const fileHelper = require("../util/file");
@@ -17,19 +15,33 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
-  console.log("post add products");
-  const { title, price, description } = req.body;
-  const image = req.file;
+  const {
+    title,
+    price,
+    description,
+    category,
+    highlights,
+    rating,
+    isOutOfStock,
+  } = req.body;
+  const image = req.files?.image?.[0];
+  const galleryImages = req.files?.images || [];
 
   const product = new Product({
-    title: title,
-    price: price,
-    description: description,
-    //you can store the entire user object and mongoose will just pick up the user._id it self
-    userId: req.user,
+    title,
+    price,
+    description,
+    category,
+    highlights: highlights || "",
+    rating: rating || 0,
+    isOutOfStock,
+    creator: req.user._id,
+    mainImageUrl: image?.path,
+    images: galleryImages.map((file) => file.path),
   });
   //validate
   if (!image) {
+    galleryImages.forEach((file) => fileHelper.deleteFile(file.path));
     return res.status(422).render("admin/edit-product", {
       pageTitle: "Edit Product-PR",
       path: "/admin/add-product",
@@ -40,10 +52,11 @@ exports.postAddProduct = (req, res, next) => {
       validationErrors: [],
     });
   }
-  product.imageUrl = image.path;
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    [image, ...galleryImages]
+      .filter(Boolean)
+      .forEach((file) => fileHelper.deleteFile(file.path));
     return res.status(422).render("admin/edit-product", {
       pageTitle: "Edit Product-PR",
       path: "/admin/add-product",
@@ -61,6 +74,9 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch((err) => {
+      [image, ...galleryImages]
+        .filter(Boolean)
+        .forEach((file) => fileHelper.deleteFile(file.path));
       //server side issue accured.
       console.log(err);
       const error = new Error(err);
@@ -86,7 +102,7 @@ exports.getEditProduct = (req, res, next) => {
   }
   const prodId = req.params.productId; //:productId"
 
-  Product.findById(prodId)
+  Product.findOne({ _id: prodId, creator: req.user._id })
     .then((product) => {
       // throw new Error("dummy");
       if (!product) {
@@ -112,19 +128,33 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  const updatedTitle = req.body.title;
-  const updatedPrice = req.body.price;
-  const image = req.file;
-  const updatedDesc = req.body.description;
+  const {
+    title,
+    price,
+    description,
+    category,
+    highlights,
+    rating,
+    isOutOfStock,
+  } = req.body;
+  const image = req.files?.image?.[0];
+  const galleryImages = req.files?.images || [];
   const product = {
-    title: updatedTitle,
-    price: updatedPrice,
-    description: updatedDesc,
+    title,
+    price,
+    description,
+    category,
+    highlights,
+    rating,
+    isOutOfStock,
     _id: prodId,
   };
   //validate
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    [image, ...galleryImages]
+      .filter(Boolean)
+      .forEach((file) => fileHelper.deleteFile(file.path));
     return res.status(422).render("admin/edit-product", {
       pageTitle: "Edit Product-PR",
       path: "/admin/edit-product",
@@ -136,25 +166,44 @@ exports.postEditProduct = (req, res, next) => {
     });
   }
   //add product
-  Product.findById(prodId)
+  Product.findOne({ _id: prodId, creator: req.user._id })
     .then((product) => {
-      if (product.userId.toString() !== req.user._id.toString()) {
-        return res.redirect("/");
+      if (!product) {
+        [image, ...galleryImages]
+          .filter(Boolean)
+          .forEach((file) => fileHelper.deleteFile(file.path));
+        return res.redirect("/admin/products");
       }
-      product.title = updatedTitle;
-      product.price = updatedPrice;
-      product.description = updatedDesc;
+      const oldMainImage = product.mainImageUrl;
+      const oldGalleryImages = [...product.images];
+
+      product.title = title;
+      product.price = price;
+      product.description = description;
+      product.category = category;
+      product.highlights = highlights || "";
+      product.rating = rating || 0;
+      product.isOutOfStock = isOutOfStock;
       if (image) {
-        product.imageUrl = image.path;
+        product.mainImageUrl = image.path;
+      }
+      if (galleryImages.length) {
+        product.images = galleryImages.map((file) => file.path);
       }
       return product.save().then((result) => {
         if (image) {
-          fileHelper.deleteFile(product.imageUrl);
+          fileHelper.deleteFile(oldMainImage);
+        }
+        if (galleryImages.length) {
+          oldGalleryImages.forEach(fileHelper.deleteFile);
         }
         res.redirect("/admin/products");
       });
     })
     .catch((err) => {
+      [image, ...galleryImages]
+        .filter(Boolean)
+        .forEach((file) => fileHelper.deleteFile(file.path));
       console.log(err);
       const error = new Error(err);
       error.setHttpStatus = 500;
@@ -164,7 +213,8 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   //populate the field you want with all the data field not just the id
-  Product.find({ userId: req.user._id })
+  Product.find({ creator: req.user._id })
+    .sort({ createdAt: -1 })
     // .select('title price -_id')
     // .populate("userId", "name")
     .then((products) => {
@@ -174,28 +224,18 @@ exports.getProducts = (req, res, next) => {
         path: "/admin/products",
       });
     })
-    .catch((err) => console.log("getindex-shopcontroller", err));
+    .catch(next);
 };
 
 exports.deleteProduct = (req, res, next) => {
-  console.log("teste");
   const prodId = req.params.productId;
-  let imageUrl;
-  Product.findById(prodId)
+  Product.findOneAndDelete({ _id: prodId, creator: req.user._id })
     .then((prod) => {
-      console.log("delete prod", prod);
       if (!prod) {
-        return res.redirect("/admin/products").then((params) => {
-          console.log("product url not found");
-        });
+        return res.status(404).json({ message: "Product was not found." });
       }
-      imageUrl = prod.imageUrl;
-      return Product.deleteOne({ _id: prodId, userId: req.user._id }).then(
-        (resutl) => {
-          fileHelper.deleteFile(prod.imageUrl);
-          res.status(200).json({ message: "product was deleted" });
-        },
-      );
+      [prod.mainImageUrl, ...prod.images].forEach(fileHelper.deleteFile);
+      return res.status(200).json({ message: "Product was deleted." });
     })
     .catch((err) => {
       console.log(err);

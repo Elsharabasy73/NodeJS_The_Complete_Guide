@@ -8,7 +8,7 @@ const user = require("../models/user");
 const Order = require("../models/orders");
 const domain = require("../util/mydomain");
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 10;
 exports.getProducts = (req, res, next) => {
   const page = +req.query.page || 1;
   let totalItems;
@@ -18,6 +18,7 @@ exports.getProducts = (req, res, next) => {
     .then((numProducts) => {
       totalItems = numProducts;
       return Product.find()
+        .sort({ createdAt: -1 })
         .skip((page - 1) * ITEMS_PER_PAGE)
         .limit(ITEMS_PER_PAGE);
     })
@@ -52,8 +53,13 @@ exports.getProduct = (req, res, next) => {
         res.status(404).send("Product not found");
         return;
       }
+      const highlightList = (product.highlights || "")
+        .split("@")
+        .map((highlight) => highlight.trim())
+        .filter(Boolean);
       res.render("shop/product-detail", {
         product: product,
+        highlightList,
         pageTitle: product.title,
         path: "/products",
       });
@@ -77,6 +83,7 @@ exports.getIndex = (req, res, next) => {
     .then((numProducts) => {
       totalItems = numProducts;
       return Product.find()
+        .sort({ createdAt: -1 })
         .skip((page - 1) * ITEMS_PER_PAGE)
         .limit(ITEMS_PER_PAGE);
     })
@@ -117,6 +124,9 @@ exports.getCart = (req, res, next) => {
         pageTitle: "Your Cart",
         products: products,
         totalSum: totalSum,
+        hasUnavailableProducts: products.some(
+          (product) => product.isOutOfStock,
+        ),
       });
     })
     .catch((err) => {
@@ -128,9 +138,11 @@ exports.getCart = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.findById(prodId)
+  Product.findOne({ _id: prodId, isOutOfStock: false })
     .then((product) => {
-      console.log("post cart");
+      if (!product) {
+        return res.redirect(`/products/${prodId}`);
+      }
       return req.user.addToCart(product);
     })
     .then((result) => {
@@ -202,6 +214,12 @@ exports.getCheckout = (req, res, next) => {
   req.user
     .getCartItems()
     .then((cartProducts) => {
+      if (
+        !cartProducts.length ||
+        cartProducts.some((product) => product.isOutOfStock)
+      ) {
+        return null;
+      }
       const totalSum = cartProducts.reduce((accumulator, currentProduct) => {
         return accumulator + currentProduct.price * currentProduct.quantity;
       }, 0);
@@ -229,6 +247,9 @@ exports.getCheckout = (req, res, next) => {
       });
     })
     .then((session) => {
+      if (!session) {
+        return res.redirect("/cart");
+      }
       res.render("shop/checkout", {
         path: "/checkout",
         pageTitle: "Checkout",

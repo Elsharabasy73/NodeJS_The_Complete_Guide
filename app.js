@@ -9,11 +9,37 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flash = require("connect-flash");
 const multer = require("multer");
+const crypto = require("crypto");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
 const MONGODB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/";
+const PRODUCT_IMAGE_BASE_URL =
+  process.env.PRODUCT_IMAGE_BASE_URL || "https://kayan-modern.egypts.me/api/";
+
+const productImageUrl = (imagePath) => {
+  if (!imagePath) {
+    return "";
+  }
+  if (/^https?:\/\//i.test(imagePath)) {
+    return imagePath;
+  }
+
+  const encodedPath = imagePath
+    .replace(/^\/+/, "")
+    .split("/")
+    .map((segment) => {
+      try {
+        return encodeURIComponent(decodeURIComponent(segment));
+      } catch (error) {
+        return encodeURIComponent(segment);
+      }
+    })
+    .join("/");
+
+  return new URL(encodedPath, PRODUCT_IMAGE_BASE_URL).href;
+};
 
 const app = express();
 const store = new MongoDBStore({
@@ -37,7 +63,8 @@ const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === "image/png" ||
     file.mimetype === "image/jpg" ||
-    file.mimetype === "image/jpeg"
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/webp"
   ) {
     cb(null, true);
   } else {
@@ -63,13 +90,17 @@ const fileStorage = multer.diskStorage({
     // Constructing the filename in the desired format
     const formattedDate = `${year}y-${month}m-${day}d-${hour}h-${min}m-${sec}s`;
     const originalname = file.originalname.replace(/\s+/g, "_"); // Replacing spaces with underscores
-    const filename = `${formattedDate}-${originalname}`;
+    const uniqueId = crypto.randomBytes(6).toString("hex");
+    const filename = `${formattedDate}-${uniqueId}-${originalname}`;
     cb(null, filename);
   },
 });
 
 app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image"),
+  multer({ storage: fileStorage, fileFilter: fileFilter }).fields([
+    { name: "image", maxCount: 1 },
+    { name: "images", maxCount: 4 },
+  ]),
 );
 app.use(express.static(path.join(__dirname, "public")));
 // if we have a request start with /image the requist will be handled from the file images
@@ -113,6 +144,7 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
   res.locals.csrfToken = req.csrfToken();
+  res.locals.productImageUrl = productImageUrl;
   // const errorMessageList = req.flash("error");
   // const errorMessage = errorMessageList ? errorMessageList[0] : null;
   next();
@@ -137,7 +169,7 @@ mongoose
   .connect(MONGODB_URL)
   .then((result) => {
     console.log("conneted to the db");
-    app.listen(3000);
+    app.listen(process.env.PORT || 3000);
     // app.listen(3000,'192.168.1.6');
     console.log("listenning");
   })

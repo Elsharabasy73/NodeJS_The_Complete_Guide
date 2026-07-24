@@ -1,5 +1,9 @@
-<form action="/cart" method="post">
-    <button class="btn" type="submit">Add to cart</button>
-    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-    <input type="hidden" name="productId" value="<%= product._id %>">
-</form>
+<% if (product.isOutOfStock) { %>
+    <span class="stock-badge stock-badge--out">Out of stock</span>
+    <% } else { %>
+        <form action="/cart" method="post">
+            <button class="btn" type="submit">Add to cart</button>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input type="hidden" name="productId" value="<%= product._id %>">
+        </form>
+        <% } %>

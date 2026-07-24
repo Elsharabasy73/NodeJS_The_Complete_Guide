@@ -2,18 +2,28 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-//_id will be added automatecally
-const productSchema = new Schema({
-  title: { type: String, required: true },
-  price: { type: Number, required: true },
-  description: { type: String, required: true },
-  imageUrl: { type: String, required: true },
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+// _id, createdAt, and updatedAt are added automatically.
+const productSchema = new Schema(
+  {
+    title: { type: String, required: true, trim: true },
+    isOutOfStock: { type: Boolean, default: false },
+    category: { type: String, required: true, trim: true },
+    creator: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    price: { type: Number, required: true, min: 0 },
+    description: { type: String, required: true, trim: true },
+    highlights: { type: String, default: "", trim: true },
+    mainImageUrl: { type: String, required: true, trim: true },
+    rating: { type: Number, default: 0, min: 0, max: 5 },
+    reviews: { type: [Schema.Types.Mixed], default: [] },
+    images: { type: [String], default: [] },
   },
-});
+  { timestamps: true },
+);
 //use model to connect a blue print (schema) with a name
 module.exports = mongoose.model("Product", productSchema);
 
@@ -51,9 +61,9 @@ module.exports = mongoose.model("Product", productSchema);
 //         console.log('save/update');
 //       })
 //           .catch((err) => {
-    //   err.setHttpStatus = 500;
-    //   next(err);
-    // });;
+//   err.setHttpStatus = 500;
+//   next(err);
+// });;
 //   }
 
 //   static deleteById(prodId) {
@@ -77,9 +87,9 @@ module.exports = mongoose.model("Product", productSchema);
 //       .find()
 //       .toArray()
 //           .catch((err) => {
-    //   err.setHttpStatus = 500;
-    //   next(err);
-    // });;
+//   err.setHttpStatus = 500;
+//   next(err);
+// });;
 //   }
 //   static findById(prodId) {
 //     const db = getDb();
@@ -94,9 +104,9 @@ module.exports = mongoose.model("Product", productSchema);
 //         return product;
 //       })
 //           .catch((err) => {
-    //   err.setHttpStatus = 500;
-    //   next(err);
-    // });;
+//   err.setHttpStatus = 500;
+//   next(err);
+// });;
 //   }
 // }
 

@@ -18,15 +18,16 @@
           <div class="grid" id="product-grid">
             <% for (let product of prods) { %>
               <article class="card product-item">
-                <div class="card__image"><img src="/<%= product.imageUrl %>" alt="<%= product.title %>" loading="lazy">
+                <div class="card__image"><img src="<%= productImageUrl(product.mainImageUrl) %>"
+                    alt="<%= product.title %>" loading="lazy">
                 </div>
                 <div class="card__content">
-                  <h2 class="product__title">
+                  <h2 class="product__title" dir="auto">
                     <%= product.title %>
                   </h2>
                   <p class="product__price">$<%= Number(product.price).toFixed(2) %>
                   </p>
-                  <p class="product__description">
+                  <p class="product__description" dir="auto">
                     <%= product.description %>
                   </p>
                 </div>

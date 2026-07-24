@@ -17,15 +17,15 @@
             <% for (let product of prods) { %>
               <article class="card product-item">
                 <a class="card__image" href="/products/<%= product._id %>" aria-label="View <%= product.title %>">
-                  <img src="/<%= product.imageUrl %>" alt="<%= product.title %>" loading="lazy">
+                  <img src="<%= productImageUrl(product.mainImageUrl) %>" alt="<%= product.title %>" loading="lazy">
                 </a>
                 <div class="card__content">
-                  <h2 class="product__title">
+                  <h2 class="product__title" dir="auto">
                     <%= product.title %>
                   </h2>
                   <p class="product__price">$<%= Number(product.price).toFixed(2) %>
                   </p>
-                  <p class="product__description">
+                  <p class="product__description" dir="auto">
                     <%= product.description %>
                   </p>
                 </div>

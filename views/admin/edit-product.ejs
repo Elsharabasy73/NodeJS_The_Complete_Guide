@@ -25,27 +25,60 @@
               <div class="form-control">
                 <label for="title">Product title</label>
                 <input class="<%= validationErrors.find(e => e.path === 'title') ? 'invalid' : '' %>" type="text"
-                  name="title" id="title" value="<% if (editing || hasErrors) { %><%= product.title %><% } %>" required
-                  minlength="3" autocomplete="off">
+                  name="title" id="title" dir="auto"
+                  value="<% if (editing || hasErrors) { %><%= product.title %><% } %>" required minlength="3"
+                  autocomplete="off">
               </div>
               <div class="form-control">
-                <label for="image">Product image</label>
+                <label for="category">Category</label>
+                <input class="<%= validationErrors.find(e => e.path === 'category') ? 'invalid' : '' %>" type="text"
+                  name="category" id="category" dir="auto"
+                  value="<% if (editing || hasErrors) { %><%= product.category || '' %><% } %>" required>
+              </div>
+              <div class="form-control">
+                <label for="image">Main product image</label>
                 <input type="file" name="image" id="image" accept="image/png,image/jpeg,image/webp" <%=editing ? ''
                   : 'required' %>>
                 <small class="form-hint">Use a clear JPG, PNG, or WebP image with a landscape crop.</small>
               </div>
               <div class="form-control">
+                <label for="images">Gallery images (up to 4)</label>
+                <input type="file" name="images" id="images" accept="image/png,image/jpeg,image/webp" multiple>
+                <small class="form-hint">Selecting new gallery images while editing replaces the current
+                  gallery.</small>
+              </div>
+              <div class="form-control">
                 <label for="price">Price (USD)</label>
                 <input class="<%= validationErrors.find(e => e.path === 'price') ? 'invalid' : '' %>" type="number"
-                  name="price" id="price" min="0.01" step="0.01" inputmode="decimal"
+                  name="price" id="price" min="0" step="0.01" inputmode="decimal"
                   value="<% if (editing || hasErrors) { %><%= product.price %><% } %>" required>
               </div>
               <div class="form-control">
                 <label for="description">Description</label>
                 <textarea class="<%= validationErrors.find(e => e.path === 'description') ? 'invalid' : '' %>"
-                  name="description" id="description" rows="6" required
+                  name="description" id="description" rows="6" dir="auto" required
                   minlength="5"><% if (editing || hasErrors) { %><%= product.description %><% } %></textarea>
                 <small class="form-hint">Describe the product's key qualities and why customers will value it.</small>
+              </div>
+              <div class="form-control">
+                <label for="highlights">Highlights</label>
+                <textarea name="highlights" id="highlights" rows="4" dir="auto"
+                  placeholder="@First feature@Second feature"><% if (editing || hasErrors) { %><%= product.highlights || '' %><% } %></textarea>
+                <small class="form-hint">Separate each highlight with an @ symbol.</small>
+              </div>
+              <div class="form-control">
+                <label for="rating">Rating (0–5)</label>
+                <input type="number" name="rating" id="rating" min="0" max="5" step="0.1"
+                  value="<% if (editing || hasErrors) { %><%= product.rating || 0 %><% } else { %>0<% } %>">
+              </div>
+              <div class="form-control">
+                <label for="isOutOfStock">Availability</label>
+                <select name="isOutOfStock" id="isOutOfStock">
+                  <option value="false" <%=(editing || hasErrors) && !product.isOutOfStock ? 'selected' : '' %>>In stock
+                  </option>
+                  <option value="true" <%=(editing || hasErrors) && product.isOutOfStock ? 'selected' : '' %>>Out of
+                    stock</option>
+                </select>
               </div>
               <% if (editing) { %><input type="hidden" value="<%= product._id %>" name="productId">
                 <% } %>

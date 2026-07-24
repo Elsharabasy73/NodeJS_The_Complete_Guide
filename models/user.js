@@ -64,6 +64,9 @@ userSchema.methods.getCartItems = function () {
   return this.populate("cart.items.productId").then((user) => {
     const products = [];
     user.cart.items.forEach((element) => {
+      if (!element.productId) {
+        return;
+      }
       const product = { ...element.productId._doc, quantity: element.quantity };
       products.push(product);
     });
@@ -83,9 +86,18 @@ userSchema.methods.addOrder = function () {
   return this.populate("cart.items.productId")
     .then((user) => {
       //modefy the cart to the order form
-      const products = user.cart.items.map((i) => {
-        return { quantity: i.quantity, product: { ...i.productId._doc } };
-      });
+      const products = user.cart.items
+        .filter((item) => item.productId)
+        .map((item) => ({
+          quantity: item.quantity,
+          product: {
+            _id: item.productId._id,
+            title: item.productId.title,
+            price: item.productId.price,
+            mainImageUrl: item.productId.mainImageUrl,
+            category: item.productId.category,
+          },
+        }));
       //save order
       const order = new Order({
         products: products,

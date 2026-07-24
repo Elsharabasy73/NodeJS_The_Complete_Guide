@@ -16,9 +16,10 @@
             <ul class="cart__item-list">
               <% products.forEach(p=> { %>
                 <li class="cart__item">
-                  <div class="cart__image"><img src="/<%= p.imageUrl %>" alt="" loading="lazy"></div>
+                  <div class="cart__image"><img src="<%= productImageUrl(p.mainImageUrl) %>" alt="" loading="lazy">
+                  </div>
                   <div class="cart__details">
-                    <h2>
+                    <h2 dir="auto">
                       <%= p.title %>
                     </h2>
                     <p>Quantity: <%= p.quantity %> · $<%= Number(p.price).toFixed(2) %> each</p>
@@ -42,8 +43,12 @@
               <div class="summary-row"><span>Shipping</span><span>Calculated next</span></div>
               <div class="summary-row summary-row--total"><span>Subtotal</span><span>$<%= Number(totalSum).toFixed(2) %>
                 </span></div>
-              <a href="/checkout" class="btn">Continue to checkout</a>
-              <p class="checkout-note">Secure checkout powered by Stripe.</p>
+              <% if (hasUnavailableProducts) { %>
+                <p class="user-message user-message--error">Remove unavailable products before checkout.</p>
+                <% } else { %>
+                  <a href="/checkout" class="btn">Continue to checkout</a>
+                  <% } %>
+                    <p class="checkout-note">Secure checkout powered by Stripe.</p>
             </aside>
           </div>
           <% } else { %>

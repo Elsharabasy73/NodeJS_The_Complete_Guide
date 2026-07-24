@@ -7,6 +7,7 @@ Environment variables used by this project
 - SENDGRID_API_KEY: API key for SendGrid (used for emails).
 - SENDGRID_SENDER: Sender email for outgoing emails (e.g., 'My Shop' shop@example.com).
 - PORT: Optional server port (default 3000).
+- PRODUCT_IMAGE_BASE_URL: Base URL prepended to relative product image paths. Default: https://kayan-modern.egypts.me/api/
 
 Usage:
 

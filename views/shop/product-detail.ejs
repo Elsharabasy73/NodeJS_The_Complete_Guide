@@ -7,22 +7,45 @@
       <main id="main-content">
         <article class="product-detail">
           <div class="product-detail__media">
-            <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
+            <img src="<%= productImageUrl(product.mainImageUrl) %>" alt="<%= product.title %>">
+            <% if (product.images && product.images.length) { %>
+              <div class="product-detail__gallery" aria-label="More product images">
+                <% product.images.forEach((image, index)=> { %>
+                  <img src="<%= productImageUrl(image) %>" alt="<%= product.title %> view <%= index + 2 %>"
+                    loading="lazy">
+                  <% }) %>
+              </div>
+              <% } %>
           </div>
           <div class="product-detail__body">
-            <span class="eyebrow">Northstar collection</span>
-            <h1>
+            <span class="eyebrow" dir="auto">
+              <%= product.category %>
+            </span>
+            <h1 dir="auto">
               <%= product.title %>
             </h1>
-            <p class="product-detail__price">$<%= Number(product.price).toFixed(2) %>
-            </p>
-            <p class="product-detail__description">
-              <%= product.description %>
-            </p>
-            <div class="form-actions">
-              <%- include('../includes/add-to-cart.ejs', {product: product}) %>
-                <a class="btn secondary" href="/products">Continue shopping</a>
-            </div>
+            <% if (product.rating> 0) { %>
+              <p class="product-detail__rating" aria-label="Rated <%= product.rating %> out of 5">★ <%=
+                  Number(product.rating).toFixed(1) %> / 5</p>
+              <% } %>
+                <p class="product-detail__price">$<%= Number(product.price).toFixed(2) %>
+                </p>
+                <p class="product-detail__description" dir="auto">
+                  <%= product.description %>
+                </p>
+                <% if (highlightList.length) { %>
+                  <ul class="product-detail__highlights" dir="auto">
+                    <% highlightList.forEach((highlight)=> { %>
+                      <li>
+                        <%= highlight %>
+                      </li>
+                      <% }) %>
+                  </ul>
+                  <% } %>
+                    <div class="form-actions">
+                      <%- include('../includes/add-to-cart.ejs', {product: product}) %>
+                        <a class="btn secondary" href="/products">Continue shopping</a>
+                    </div>
           </div>
         </article>
       </main>
