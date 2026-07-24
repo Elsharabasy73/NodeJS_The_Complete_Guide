@@ -2,7 +2,8 @@ const path = require("path");
 const fs = require("fs");
 const PDFDocument = require("pdfkit");
 const stripe = require("stripe")(
-  "sk_test_51OfVIOJyKkHwBXZ9kCebRobcgZv8GsPtFgbfLWBPj1ZUXGHe75VbS89pEAzuGVHK4057sRsnkQ7o9z7jfLkO9OVN00TmPVS552"
+  process.env.STRIPE_SECRET ||
+    "sk_test_51Twcu60uuZYpQYE6eyWHx24sbIpDHgxyNDEGHIxl8TS6daFKSRuFzM5hqfDe8UbVCFSQwAEKmDL05SAkhhFXJDvz00DdVCDLCH",
 );
 
 const Product = require("../models/product");
@@ -226,6 +227,9 @@ exports.getCheckout = (req, res, next) => {
         products: products,
         totalSum: total,
         sessionId: session.id,
+        stripePublishableKey:
+          process.env.STRIPE_PUBLISHABLE_KEY ||
+          "pk_test_51Twcu60uuZYpQYE6N8emEDgozaAYBYEeFlBfCBod14soIOteYZF67eoOAl2qk2ToK4P1lqx2qlRFZV6F5omrPGfC00j90JWnM4",
       });
     })
     .catch((err) => {
@@ -249,7 +253,7 @@ exports.getInvoice = (req, res, next) => {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        "inline; filename='" + invoiceName + "'"
+        "inline; filename='" + invoiceName + "'",
       );
       // const file = fs.createReadStream(invoicePath);
       //use readable streams to pipe their output to a writable stream.
@@ -273,7 +277,7 @@ exports.getInvoice = (req, res, next) => {
               prod.quantity +
               " x " +
               "$" +
-              prod.product.price
+              prod.product.price,
           );
       });
       pdfDoc.text("---");

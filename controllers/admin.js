@@ -194,7 +194,7 @@ exports.deleteProduct = (req, res, next) => {
         (resutl) => {
           fileHelper.deleteFile(prod.imageUrl);
           res.status(200).json({ message: "product was deleted" });
-        }
+        },
       );
     })
     .catch((err) => {

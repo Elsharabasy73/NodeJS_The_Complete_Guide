@@ -4,3 +4,5 @@ email.js
 images
 data
 mailgun.js
+# Environment variables
+.env

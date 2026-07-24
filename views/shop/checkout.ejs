@@ -28,7 +28,7 @@
           <button id="order-btn" class="btn">Checkout!</button>
           <script src="https://js.stripe.com/v3/"></script>
           <script>
-            var stripe = Stripe('pk_test_51OfVIOJyKkHwBXZ9NcpYtxUTBFm3bzVMfMF6bJRyhqA4m7jZqWNU5TyLqXBKRsMHyjz74M793h8NUyYBAND1ZmL800AIgdB6f4');
+            var stripe = Stripe('<%= typeof stripePublishableKey !== "undefined" ? stripePublishableKey : "pk_test_51Twcu60uuZYpQYE6N8emEDgozaAYBYEeFlBfCBod14soIOteYZF67eoOAl2qk2ToK4P1lqx2qlRFZV6F5omrPGfC00j90JWnM4" %>');
             var orderBtn = document.getElementById('order-btn');
             orderBtn.onclick = () => {
               console.log('clicked');

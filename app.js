@@ -1,5 +1,6 @@
 //17. Advanced Authentication
 const path = require("path");
+require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const bodyParser = require("body-parser");
@@ -12,10 +13,7 @@ const multer = require("multer");
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
-const MONGODB_URL =
-  // "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop";
-  // "mongodb+srv://abdomake73:xlsgzIvu2CYeOTrg@cluster0.vclsggt.mongodb.net/shop?retryWrites=true&w=majority"
-  "mongodb://localhost:27017/";
+const MONGODB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/";
 
 const app = express();
 const store = new MongoDBStore({
@@ -71,18 +69,18 @@ const fileStorage = multer.diskStorage({
 });
 
 app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image"),
 );
 app.use(express.static(path.join(__dirname, "public")));
 // if we have a request start with /image the requist will be handled from the file images
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   session({
-    secret: "my secret",
+    secret: process.env.SESSION_SECRET || "my secret",
     resave: false,
     saveUninitialized: false,
     store: store,
-  })
+  }),
 );
 //after initialising the session csrf will use that session
 app.use(csrfProtection);

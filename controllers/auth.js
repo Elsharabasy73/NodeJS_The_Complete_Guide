@@ -1,24 +1,26 @@
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
-const sendgridTransport = require("nodemailer-sendgrid-transport");
 //get all the validation errors might have been thrown
 const { validationResult } = require("express-validator");
 
 const User = require("../models/user");
 const domain = require("../util/mydomain");
 
-const API_KEY =
-  "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";
-const SINGLE_SENDER = "'furniture' sara.momo7112@gmail.com";
+// Use Gmail SMTP credentials from environment (.env loaded in app.js)
+const SINGLE_SENDER =
+  process.env.SENDER_EMAIL || process.env.SENDGRID_SENDER || "'furniture' sara.momo7112@gmail.com";
+const SENDER_PASSWORD = process.env.SENDER_PASSWORD || process.env.SENDGRID_PASSWORD || null;
 
-const transporter = nodemailer.createTransport(
-  sendgridTransport({
-    auth: {
-      api_key: API_KEY,
-    },
-  })
-);
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.SENDER_EMAIL || process.env.SENDGRID_SENDER,
+    pass: SENDER_PASSWORD,
+  },
+});
 
 exports.getLogin = (req, res, next) => {
   const errorMessageList = req.flash("error");
@@ -151,7 +153,7 @@ exports.postSignup = (req, res, next) => {
             <p>Thank you for signing up for our platform! </p>
             <p>To ensure that you have provided a valid email address</p>
             <p> please click on the link below to verify your account: <a href='${domain(
-              req
+              req,
             )}/confirm/${token}'> Verify </a> </p>
             <p>If you did not sign up for our platform, please ignore this email.</p>
             <p>Thank you for your cooperation.</p>
@@ -205,7 +207,7 @@ exports.postReset = (req, res, next) => {
         if (!user) {
           req.flash(
             "error",
-            `This email '${email}' you want to reset dosen't exist`
+            `This email '${email}' you want to reset dosen't exist`,
           );
           return res.redirect("/signup");
         }
@@ -296,15 +298,22 @@ exports.getConfirmSignup = (req, res, next) => {
   User.findOne({
     confirmToken: token,
     confirmTokenExpiration: { $gt: Date.now() },
-  }).then((user) => {
-    if (!user) {
-      return console.log("confirmfailed");
-    }
-    user.isConfirmed = true;
-    user.confirmToken = undefined;
-    user.confirmTokenExpiration = undefined;
-    return user.save().then(() => {
-      return res.render("auth/confirm-signup");
+  })
+    .then((user) => {
+      if (!user) {
+        return console.log("confirmfailed");
+      }
+      user.isConfirmed = true;
+      user.confirmToken = undefined;
+      user.confirmTokenExpiration = undefined;
+      return user.save().then(() => {
+        return res.render("auth/confirm-signup");
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      const error = new Error(err);
+      error.setHttpStatus = 500;
+      next(error);
     });
-  });
 };
