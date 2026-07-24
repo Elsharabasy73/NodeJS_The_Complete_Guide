@@ -5,40 +5,46 @@
 
   <body>
     <%- include('../includes/navigation.ejs') %>
-
-      <main>
+      <main id="main-content">
+        <div class="page-header">
+          <div><span class="eyebrow">Catalog management</span>
+            <h1>Manage products</h1>
+            <p>Keep product details, pricing, and the storefront collection up to date.</p>
+          </div>
+          <a class="btn" href="/admin/add-product">Add new product</a>
+        </div>
+        <div id="admin-status" class="user-message user-message--error" role="status" hidden></div>
         <% if (prods.length> 0) { %>
-          <div class="grid">
+          <div class="grid" id="product-grid">
             <% for (let product of prods) { %>
               <article class="card product-item">
-                <header class="card__header">
-                  <h1 class="product__title">
-                    <%= product.title %>
-                  </h1>
-                </header>
-                <div class="card__image">
-                  <img src="/<%= product.imageUrl %>" alt="<%= product.title %>"><!-- local/image/name -->
-                  <!-- <img src="<%= product.imageUrl %>" alt="<%= product.title %>"> //local/admin/image/name -->
+                <div class="card__image"><img src="/<%= product.imageUrl %>" alt="<%= product.title %>" loading="lazy">
                 </div>
                 <div class="card__content">
-                  <h2 class="product__price">$
-                    <%= product.price %>
+                  <h2 class="product__title">
+                    <%= product.title %>
                   </h2>
+                  <p class="product__price">$<%= Number(product.price).toFixed(2) %>
+                  </p>
                   <p class="product__description">
                     <%= product.description %>
                   </p>
                 </div>
                 <div class="card__actions">
-                  <a href="/admin/edit-product/<%= product._id %>?edit=true" class="btn">Edit</a>
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <input type="hidden" value="<%= product._id %>" name="productId">
-                  <button class="btn" type="button" onclick="deleteProduct(this)">Delete</button>
+                  <a href="/admin/edit-product/<%= product._id %>?edit=true" class="btn secondary">Edit</a>
+                  <button class="btn danger delete-product" type="button" data-product-id="<%= product._id %>"
+                    data-csrf="<%= csrfToken %>" data-product-title="<%= product.title %>">Delete</button>
                 </div>
               </article>
               <% } %>
           </div>
           <% } else { %>
-            <h1>No Products Found!</h1>
+            <section class="empty-state" id="admin-empty-state">
+              <div class="empty-state__icon" aria-hidden="true">+</div>
+              <h1>Build your catalog</h1>
+              <p>Add your first product to begin shaping the storefront.</p>
+              <div class="empty-state__actions"><a class="btn" href="/admin/add-product">Add a product</a></div>
+            </section>
             <% } %>
       </main>
       <%- include('../includes/end.ejs') %>

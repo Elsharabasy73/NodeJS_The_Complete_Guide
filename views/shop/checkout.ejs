@@ -4,44 +4,60 @@
 
   <body>
     <%- include('../includes/navigation.ejs') %>
-      <main>
-
-        <ul class="cart__item-list">
-          <% products.forEach(p=> { %>
-            <li class="cart__item">
-              <h1>
-                <%= p.title %>
-              </h1>
-              <h2>Quantity: <%= p.quantity %>
-              </h2>
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <input type="hidden" value="<%= p._id %>" name="productId">
-            </li>
-            <% }) %>
-        </ul>
-        <hhhhjddhr>
-          <div class="centered">
-            <h2>Total: <%= totalSum %>
-            </h2>
+      <main id="main-content">
+        <div class="page-header">
+          <div><span class="eyebrow">Secure payment</span>
+            <h1>Review and checkout</h1>
+            <p>Confirm your order, then continue to Stripe to complete payment securely.</p>
           </div>
-          <div class="centered">
-            <button id="order-btn" class="btn">Checkout!</button>
-            <script src="https://js.stripe.com/v3/"></script>
-            <script>
-              var stripe = Stripe('<%= typeof stripePublishableKey !== "undefined" ? stripePublishableKey : "" %>');
-              var orderBtn = document.getElementById('order-btn');
-              orderBtn.onclick = () => {
-                console.log('clicked');
-                stripe.redirectToCheckout({
-                  sessionId: '<%= sessionId %>'
-                })
-              }
-              var elements = stripe.elements({
-                mode: 'payment',
-                currency: 'usd',
-                amount: 1099,
-              });
-            </script>
-          </div>
+        </div>
+        <div class="cart-layout">
+          <ul class="cart__item-list">
+            <% products.forEach(p=> { %>
+              <li class="cart__item">
+                <div class="cart__image"><img src="/<%= p.imageUrl %>" alt="" loading="lazy"></div>
+                <div class="cart__details">
+                  <h2>
+                    <%= p.title %>
+                  </h2>
+                  <p>Quantity: <%= p.quantity %> · $<%= Number(p.price).toFixed(2) %> each</p>
+                </div>
+                <p class="cart__price">$<%= (p.price * p.quantity).toFixed(2) %>
+                </p>
+              </li>
+              <% }) %>
+          </ul>
+          <aside class="order-summary">
+            <h2>Payment summary</h2>
+            <div class="summary-row"><span>Items</span><span>
+                <%= products.reduce((sum, p)=> sum + p.quantity, 0) %>
+              </span></div>
+            <div class="summary-row summary-row--total"><span>Total</span><span>$<%= Number(totalSum).toFixed(2) %>
+              </span></div>
+            <button id="order-btn" class="btn" type="button" data-session-id="<%= sessionId %>"
+              data-stripe-key="<%= stripePublishableKey %>">Pay securely</button>
+            <p class="checkout-note">You will be redirected to Stripe. We never store your card details.</p>
+            <p class="checkout-error" id="checkout-error" role="alert" hidden></p>
+          </aside>
+        </div>
       </main>
+      <script src="https://js.stripe.com/v3/"></script>
+      <script>
+        (function () {
+          var button = document.getElementById('order-btn');
+          var error = document.getElementById('checkout-error');
+          button.addEventListener('click', function () {
+            button.disabled = true;
+            button.textContent = 'Opening secure checkout…';
+            Stripe(button.dataset.stripeKey).redirectToCheckout({ sessionId: button.dataset.sessionId }).then(function (result) {
+              if (result.error) {
+                error.textContent = result.error.message;
+                error.hidden = false;
+                button.disabled = false;
+                button.textContent = 'Pay securely';
+              }
+            });
+          });
+        }());
+      </script>
       <%- include('../includes/end.ejs') %>

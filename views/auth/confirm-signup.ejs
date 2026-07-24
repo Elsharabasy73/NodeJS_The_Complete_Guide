@@ -1,1 +1,15 @@
-<h1>Congratulation your Email confirmed successfully.</h1>
+<%- include('../includes/head.ejs') %>
+  </head>
+
+  <body>
+    <%- include('../includes/navigation.ejs') %>
+      <main id="main-content">
+        <section class="empty-state">
+          <div class="empty-state__icon" aria-hidden="true">✓</div><span class="eyebrow">Email confirmed</span>
+          <h1>You're ready to shop</h1>
+          <p>Your email has been verified successfully. Login to start building your cart.</p>
+          <div class="empty-state__actions"><a class="btn" href="/login">Continue to login</a><a class="btn secondary"
+              href="/products">Browse products</a></div>
+        </section>
+      </main>
+      <%- include('../includes/end.ejs') %>

@@ -3,7 +3,13 @@
 
   <body>
     <%- include('includes/navigation.ejs') %>
-      <h1>Some error occurred!</h1>
-      <p>We're working on fixing that sorry for the inconvenience!.</p>
-
+      <main id="main-content">
+        <section class="error-state">
+          <div class="error-state__code">500</div><span class="eyebrow">Temporary issue</span>
+          <h1>Something didn't go as planned</h1>
+          <p>The shop hit an unexpected error. Please try again in a moment while the issue is being resolved.</p>
+          <div class="empty-state__actions"><a class="btn" href="/">Return home</a><button class="btn secondary"
+              type="button" onclick="window.location.reload()">Try again</button></div>
+        </section>
+      </main>
       <%- include('includes/end.ejs') %>

@@ -1,16 +1,29 @@
 <%- include('../includes/head.ejs') %>
-    </head>
+  <link rel="stylesheet" href="/css/product.css">
+  </head>
 
-    <body>
-        <%- include('../includes/navigation.ejs') %>
-        <main class="centered">
-            <h1><%= product.title %></h1>
-            <hr>
-            <div class="image">
-                <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
+  <body>
+    <%- include('../includes/navigation.ejs') %>
+      <main id="main-content">
+        <article class="product-detail">
+          <div class="product-detail__media">
+            <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
+          </div>
+          <div class="product-detail__body">
+            <span class="eyebrow">Northstar collection</span>
+            <h1>
+              <%= product.title %>
+            </h1>
+            <p class="product-detail__price">$<%= Number(product.price).toFixed(2) %>
+            </p>
+            <p class="product-detail__description">
+              <%= product.description %>
+            </p>
+            <div class="form-actions">
+              <%- include('../includes/add-to-cart.ejs', {product: product}) %>
+                <a class="btn secondary" href="/products">Continue shopping</a>
             </div>
-            <h2><%= product.price %></h2>
-            <p><%= product.description %></p>
-            <%- include('../includes/add-to-cart.ejs') %>
-        </main>
-        <%- include('../includes/end.ejs') %>
+          </div>
+        </article>
+      </main>
+      <%- include('../includes/end.ejs') %>

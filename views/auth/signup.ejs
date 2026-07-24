@@ -5,31 +5,37 @@
 
   <body>
     <%- include('../includes/navigation.ejs') %>
-
-      <main>
-        <% if (errorMessage) { %>
-          <div class="user-message user-message--error">
-            <%= errorMessage %>
+      <main id="main-content">
+        <section class="auth-shell">
+          <div class="auth-shell__intro"><span class="eyebrow">Join Northstar</span>
+            <h1>Your next great find starts here.</h1>
+            <p>Create an account for a faster checkout, order history, and a seamless shopping experience.</p>
           </div>
-          <% } %>
-            <form class="login-form" action="/signup" method="POST">
-              <div class="form-control">
-                <label for="email">E-Mail</label>
-                <input class="<%=validationErrors.find(e=>e.path === 'email')? 'invalid':'' %>" type="email"
-                  name="email" value="<%= oldInput.email %>" id="email">
+          <div class="auth-shell__form">
+            <h2>Create account</h2>
+            <p>It only takes a moment to get started.</p>
+            <% if (errorMessage) { %>
+              <div class="user-message user-message--error" role="alert">
+                <%= errorMessage %>
               </div>
-              <div class="form-control">
-                <label for="password">Password</label>
-                <input class="<%=validationErrors.find(e=>e.path === 'password')? 'invalid':'' %>" type="password"
-                name="password" id="password">
-              </div>
-              <div class="form-control">
-                <label for="confirmPassword">Confirm Password</label>
-                <input class="<%=validationErrors.find(e=>e.path === 'confirmPassword')? 'invalid':'' %>"type="password"
-                name="confirmPassword" id="confirmPassword">
-              </div>
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <button class="btn" type="submit">Signup</button>
-            </form>
+              <% } %>
+                <form class="login-form" action="/signup" method="POST">
+                  <div class="form-control"><label for="email">Email address</label><input
+                      class="<%= validationErrors.find(e => e.path === 'email') ? 'invalid' : '' %>" type="email"
+                      name="email" value="<%= oldInput.email %>" id="email" autocomplete="email" required></div>
+                  <div class="form-control"><label for="password">Password</label><input
+                      class="<%= validationErrors.find(e => e.path === 'password') ? 'invalid' : '' %>" type="password"
+                      name="password" id="password" autocomplete="new-password" minlength="5" required><small
+                      class="form-hint">Use at least 5 characters with letters and numbers.</small></div>
+                  <div class="form-control"><label for="confirmPassword">Confirm password</label><input
+                      class="<%= validationErrors.find(e => e.path === 'confirmPassword') ? 'invalid' : '' %>"
+                      type="password" name="confirmPassword" id="confirmPassword" autocomplete="new-password"
+                      minlength="5" required></div>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn" type="submit">Create my account</button>
+                </form>
+                <p class="auth-footer">Already have an account? <a href="/login">Login</a></p>
+          </div>
+        </section>
       </main>
       <%- include('../includes/end.ejs') %>

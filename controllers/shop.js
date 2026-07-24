@@ -56,7 +56,6 @@ exports.getProduct = (req, res, next) => {
         product: product,
         pageTitle: product.title,
         path: "/products",
-        isAuthenticated: true,
       });
     })
     .catch((err) => {
@@ -106,13 +105,25 @@ exports.getCart = (req, res, next) => {
   // console.log("user", req.session.user);
   // console.log("user", req.user);
 
-  req.user.getCartItems().then((products) => {
-    res.render("shop/cart", {
-      path: "/cart",
-      pageTitle: "Your Cart",
-      products: products,
+  req.user
+    .getCartItems()
+    .then((products) => {
+      const totalSum = products.reduce(
+        (sum, product) => sum + product.price * product.quantity,
+        0,
+      );
+      res.render("shop/cart", {
+        path: "/cart",
+        pageTitle: "Your Cart",
+        products: products,
+        totalSum: totalSum,
+      });
+    })
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      next(error);
     });
-  });
 };
 
 exports.postCart = (req, res, next) => {
@@ -204,7 +215,7 @@ exports.getCheckout = (req, res, next) => {
             quantity: p.quantity,
             price_data: {
               currency: "usd",
-              unit_amount: p.price * 100,
+              unit_amount: Math.round(p.price * 100),
               product_data: {
                 name: p.title,
                 description: p.description,

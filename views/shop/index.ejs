@@ -4,38 +4,61 @@
 
   <body>
     <%- include('../includes/navigation.ejs') %>
+      <main id="main-content">
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero__content">
+            <span class="eyebrow">Everyday essentials, elevated</span>
+            <h1 id="hero-title">Better finds.<br>Smarter shopping.</h1>
+            <p>Discover a considered collection of quality products selected to make every day a little better.</p>
+            <div class="hero__actions">
+              <a class="btn btn--light" href="/products">Explore the collection</a>
+              <% if (!isAuthenticated) { %><a class="btn btn--dark" href="/signup">Join Northstar</a>
+                <% } %>
+            </div>
+          </div>
+        </section>
 
-      <main>
+        <div class="page-header">
+          <div>
+            <span class="eyebrow">Featured collection</span>
+            <h1>Fresh picks for you</h1>
+            <p>Standout products, straightforward prices, and a secure checkout experience.</p>
+          </div>
+          <a class="btn secondary" href="/products">View all products</a>
+        </div>
+
         <% if (prods.length> 0) { %>
           <div class="grid">
             <% for (let product of prods) { %>
               <article class="card product-item">
-                <header class="card__header">
-                  <h1 class="product__title">
-                    <%= product.title %>
-                  </h1>
-                </header>
-                <div class="card__image">
-                  <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
-                </div>
+                <a class="card__image" href="/products/<%= product._id %>" aria-label="View <%= product.title %>">
+                  <img src="/<%= product.imageUrl %>" alt="<%= product.title %>" loading="lazy">
+                </a>
                 <div class="card__content">
-                  <h2 class="product__price">$<%= product.price %>
+                  <h2 class="product__title">
+                    <%= product.title %>
                   </h2>
+                  <p class="product__price">$<%= Number(product.price).toFixed(2) %>
+                  </p>
                   <p class="product__description">
                     <%= product.description %>
                   </p>
                 </div>
                 <div class="card__actions">
-                  <a href="/products/<%= product._id %>" class="btn">Details</a>
+                  <a href="/products/<%= product._id %>" class="btn secondary">Details</a>
                   <%- include('../includes/add-to-cart.ejs', {product: product}) %>
                 </div>
               </article>
               <% } %>
           </div>
-          <%- include('../includes/pagination.ejs', {currentPage: currentPage, nextPage: nextPage, previousPage:
-            previousPage, lastPage: lastPage, hasNextPage: hasNextPage, hasPreviousPage: hasPreviousPage}) %>
+          <%- include('../includes/pagination.ejs', {currentPage, nextPage, previousPage, lastPage, hasNextPage,
+            hasPreviousPage}) %>
             <% } else { %>
-              <h1>No Products Found!</h1>
+              <section class="empty-state">
+                <div class="empty-state__icon" aria-hidden="true">N</div>
+                <h1>New products are on the way</h1>
+                <p>The collection is being refreshed. Check back soon for something worth discovering.</p>
+              </section>
               <% } %>
       </main>
       <%- include('../includes/end.ejs') %>

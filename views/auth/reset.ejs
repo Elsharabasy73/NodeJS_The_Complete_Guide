@@ -1,22 +1,32 @@
 <%- include('../includes/head.ejs') %>
-    <link rel="stylesheet" href="/css/forms.css">
-    <link rel="stylesheet" href="/css/auth.css">
-</head>
+  <link rel="stylesheet" href="/css/forms.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  </head>
 
-<body>
-   <%- include('../includes/navigation.ejs') %>
-
-    <main>
-        <% if (errorMessage) { %>
-            <div class="user-message user-message--error"><%= errorMessage %></div>
-        <% } %>
-        <form class="login-form" action="/reset" method="POST">
-            <div class="form-control">
-                <label for="email">E-Mail</label>
-                <input type="email" name="email" id="email">
-            </div>
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn" type="submit">Reset Password</button>
-        </form>
-    </main>
-<%- include('../includes/end.ejs') %>
+  <body>
+    <%- include('../includes/navigation.ejs') %>
+      <main id="main-content">
+        <section class="auth-shell">
+          <div class="auth-shell__intro"><span class="eyebrow">Account recovery</span>
+            <h1>Let's get you back in.</h1>
+            <p>Enter the email connected to your account and a secure reset link will be sent to you.</p>
+          </div>
+          <div class="auth-shell__form">
+            <h2>Reset password</h2>
+            <p>The reset link will be available for a limited time.</p>
+            <% if (errorMessage) { %>
+              <div class="user-message user-message--error" role="alert">
+                <%= errorMessage %>
+              </div>
+              <% } %>
+                <form class="login-form" action="/reset" method="POST">
+                  <div class="form-control"><label for="email">Email address</label><input type="email" name="email"
+                      id="email" autocomplete="email" required></div>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn" type="submit">Send reset link</button>
+                </form>
+                <p class="auth-footer"><a href="/login">Back to login</a></p>
+          </div>
+        </section>
+      </main>
+      <%- include('../includes/end.ejs') %>

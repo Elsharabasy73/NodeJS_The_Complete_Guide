@@ -1,27 +1,98 @@
-.product-form {
-    width: 20rem;
-    max-width: 90%;
-    margin: auto;
-    display: block;
-}
-
 .product-item {
-    width: 20rem;
-    max-width: 95%;
-    margin: 1rem;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
-
+.product-item:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+.product-item .card__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
 .product__title {
-    font-size: 1.2rem;
-    text-align: center;
+  overflow: hidden;
+  margin: 0 0 0.6rem;
+  font-size: 1.2rem;
+  letter-spacing: -0.025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
 .product__price {
-    text-align: center;
-    color: #4d4d4d;
-    margin-bottom: 0.5rem;
+  margin: 0 0 0.75rem;
+  color: var(--brand-700);
+  font-family: "Manrope", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
 }
-
 .product__description {
-    text-align: center;
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: var(--ink-600);
+  font-size: 0.94rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.product-detail {
+  display: grid;
+  overflow: hidden;
+  max-width: 68rem;
+  margin-inline: auto;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+.product-detail__media {
+  min-height: 24rem;
+  background: #eef2f6;
+}
+.product-detail__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.product-detail__body {
+  display: flex;
+  padding: clamp(2rem, 6vw, 4rem);
+  flex-direction: column;
+  justify-content: center;
+}
+.product-detail__body h1 {
+  margin-bottom: 1rem;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  letter-spacing: -0.05em;
+}
+.product-detail__price {
+  margin: 0 0 1.25rem;
+  color: var(--brand-700);
+  font-family: "Manrope", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+.product-detail__description {
+  margin: 0 0 2rem;
+  color: var(--ink-600);
+  font-size: 1.05rem;
+}
+.product-form {
+  display: block;
+  max-width: 48rem;
+  margin: auto;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+@media (min-width: 800px) {
+  .product-detail {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
 }

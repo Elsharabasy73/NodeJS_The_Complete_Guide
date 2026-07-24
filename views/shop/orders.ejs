@@ -1,25 +1,45 @@
 <%- include('../includes/head.ejs') %>
-    <link rel="stylesheet" href="/css/orders.css">
-    </head>
+  <link rel="stylesheet" href="/css/orders.css">
+  </head>
 
-    <body>
-        <%- include('../includes/navigation.ejs') %>
-        <main>
-            <% if (orders.length <= 0) { %>
-                <h1>Nothing there!</h1>
-            <% } else { %>
-                <ul class="orders">
-                    <% orders.forEach(order => { %>
-                        <li class="orders__item">
-                            <h1>Order - # <%= order._id %></h1><a href="/orders/<%= order._id %>">invoice</a>
-                            <ul class="orders__products">
-                                <% order.products.forEach(p => { %>
-                                    <li class="orders__products-item"><%= p.product.title %> (<%= p.quantity %>)</li>
-                                <% }); %>
-                            </ul>
-                        </li>
-                    <% }); %>
-                </ul>
+  <body>
+    <%- include('../includes/navigation.ejs') %>
+      <main id="main-content">
+        <div class="page-header">
+          <div><span class="eyebrow">Purchase history</span>
+            <h1>Your orders</h1>
+            <p>Review past purchases and download invoices whenever you need them.</p>
+          </div>
+        </div>
+        <% if (orders.length <=0) { %>
+          <section class="empty-state">
+            <div class="empty-state__icon" aria-hidden="true">0</div>
+            <h1>No orders yet</h1>
+            <p>Once you complete a purchase, its details will appear here.</p>
+            <div class="empty-state__actions"><a class="btn" href="/products">Explore products</a></div>
+          </section>
+          <% } else { %>
+            <ul class="orders">
+              <% orders.forEach(order=> { let orderTotal = 0; %>
+                <li class="orders__item">
+                  <div class="orders__header">
+                    <div><span class="eyebrow">Order reference</span>
+                      <h2>#<%= order._id %>
+                      </h2>
+                    </div>
+                    <a class="btn secondary" href="/orders/<%= order._id %>">Download invoice</a>
+                  </div>
+                  <ul class="orders__products">
+                    <% order.products.forEach(p=> { orderTotal += p.product.price * p.quantity; %>
+                      <li class="orders__products-item"><span>
+                          <%= p.product.title %> × <%= p.quantity %>
+                        </span><strong>$<%= (p.product.price * p.quantity).toFixed(2) %></strong></li>
+                      <% }); %>
+                  </ul>
+                  <p class="orders__total"><span>Total</span><span>$<%= orderTotal.toFixed(2) %></span></p>
+                </li>
+                <% }); %>
+            </ul>
             <% } %>
-        </main>
-        <%- include('../includes/end.ejs') %>
+      </main>
+      <%- include('../includes/end.ejs') %>

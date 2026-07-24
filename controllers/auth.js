@@ -9,8 +9,11 @@ const domain = require("../util/mydomain");
 
 // Use Gmail SMTP credentials from environment (.env loaded in app.js)
 const SINGLE_SENDER =
-  process.env.SENDER_EMAIL || process.env.SENDGRID_SENDER || "'furniture' sara.momo7112@gmail.com";
-const SENDER_PASSWORD = process.env.SENDER_PASSWORD || process.env.SENDGRID_PASSWORD || null;
+  process.env.SENDER_EMAIL ||
+  process.env.SENDGRID_SENDER ||
+  "'furniture' sara.momo7112@gmail.com";
+const SENDER_PASSWORD =
+  process.env.SENDER_PASSWORD || process.env.SENDGRID_PASSWORD || null;
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -103,7 +106,7 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  const confirmPassword = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -243,6 +246,13 @@ exports.getNewPassword = (req, res, next) => {
   console.log("token", token);
   User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
     .then((user) => {
+      if (!user) {
+        req.flash(
+          "error",
+          "This password reset link has expired or is invalid.",
+        );
+        return res.redirect("/reset");
+      }
       res.render("auth/new-password", {
         path: "/reset",
         pageTitle: "Reset",
@@ -301,13 +311,17 @@ exports.getConfirmSignup = (req, res, next) => {
   })
     .then((user) => {
       if (!user) {
-        return console.log("confirmfailed");
+        req.flash("error", "This confirmation link has expired or is invalid.");
+        return res.redirect("/signup");
       }
       user.isConfirmed = true;
       user.confirmToken = undefined;
       user.confirmTokenExpiration = undefined;
       return user.save().then(() => {
-        return res.render("auth/confirm-signup");
+        return res.render("auth/confirm-signup", {
+          path: "/login",
+          pageTitle: "Email Confirmed",
+        });
       });
     })
     .catch((err) => {

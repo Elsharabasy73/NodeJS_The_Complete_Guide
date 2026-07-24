@@ -1,32 +1,58 @@
 <%- include('../includes/head.ejs') %>
-    <link rel="stylesheet" href="/css/cart.css">
-    </head>
+  <link rel="stylesheet" href="/css/cart.css">
+  </head>
 
-    <body>
-        <%- include('../includes/navigation.ejs') %>
-        <main>
-            <% if (products.length > 0) { %>
-                <ul class="cart__item-list">
-                    <% products.forEach(p => { %>
-                        <li class="cart__item">
-                            <h1><%= p.title %></h1>
-                            <h2>Quantity: <%= p.quantity %></h2>
-                            <form action="/cart-delete-item" method="POST">
-                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <input type="hidden" value="<%= p._id %>" name="productId">
-                                <button class="btn danger" type="submit">Delete</button>
-                            </form>
-                        </li>
-                    <% }) %>
-                </ul>
-                <hr>
-                <div class="centered">
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                        <a href="/checkout" class="btn">Order Now!</a>
-                </div>
-                
-            <% } else { %>
-                <h1>No Products in Cart!</h1>
+  <body>
+    <%- include('../includes/navigation.ejs') %>
+      <main id="main-content">
+        <div class="page-header">
+          <div><span class="eyebrow">Your selection</span>
+            <h1>Shopping cart</h1>
+            <p>Review your items before heading to secure checkout.</p>
+          </div>
+        </div>
+        <% if (products.length> 0) { %>
+          <div class="cart-layout">
+            <ul class="cart__item-list">
+              <% products.forEach(p=> { %>
+                <li class="cart__item">
+                  <div class="cart__image"><img src="/<%= p.imageUrl %>" alt="" loading="lazy"></div>
+                  <div class="cart__details">
+                    <h2>
+                      <%= p.title %>
+                    </h2>
+                    <p>Quantity: <%= p.quantity %> · $<%= Number(p.price).toFixed(2) %> each</p>
+                  </div>
+                  <p class="cart__price">$<%= (p.price * p.quantity).toFixed(2) %>
+                  </p>
+                  <form action="/cart-delete-item" method="POST">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" value="<%= p._id %>" name="productId">
+                    <button class="btn danger" type="submit"
+                      aria-label="Remove <%= p.title %> from cart">Remove</button>
+                  </form>
+                </li>
+                <% }) %>
+            </ul>
+            <aside class="order-summary">
+              <h2>Order summary</h2>
+              <div class="summary-row"><span>Items</span><span>
+                  <%= products.reduce((sum, p)=> sum + p.quantity, 0) %>
+                </span></div>
+              <div class="summary-row"><span>Shipping</span><span>Calculated next</span></div>
+              <div class="summary-row summary-row--total"><span>Subtotal</span><span>$<%= Number(totalSum).toFixed(2) %>
+                </span></div>
+              <a href="/checkout" class="btn">Continue to checkout</a>
+              <p class="checkout-note">Secure checkout powered by Stripe.</p>
+            </aside>
+          </div>
+          <% } else { %>
+            <section class="empty-state">
+              <div class="empty-state__icon" aria-hidden="true">0</div>
+              <h1>Your cart is ready for something great</h1>
+              <p>Explore the collection and add your first item.</p>
+              <div class="empty-state__actions"><a class="btn" href="/products">Start shopping</a></div>
+            </section>
             <% } %>
-        </main>
-        <%- include('../includes/end.ejs') %>
+      </main>
+      <%- include('../includes/end.ejs') %>

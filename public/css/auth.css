@@ -1,6 +1,62 @@
+.auth-shell {
+  display: grid;
+  max-width: 62rem;
+  min-height: 34rem;
+  margin-inline: auto;
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+.auth-shell__intro {
+  display: flex;
+  padding: clamp(2rem, 6vw, 4rem);
+  color: #dbeafe;
+  background: linear-gradient(145deg, var(--ink-950), #075985);
+  flex-direction: column;
+  justify-content: center;
+}
+.auth-shell__intro h1 {
+  margin-bottom: 1rem;
+  color: white;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  letter-spacing: -0.05em;
+}
+.auth-shell__intro p {
+  margin: 0;
+}
+.auth-shell__form {
+  display: flex;
+  padding: clamp(2rem, 6vw, 4rem);
+  flex-direction: column;
+  justify-content: center;
+}
+.auth-shell__form h2 {
+  margin-bottom: 0.4rem;
+  font-size: 1.8rem;
+}
+.auth-shell__form > p {
+  margin: 0 0 1.7rem;
+  color: var(--ink-600);
+}
 .login-form {
-  width: 20rem;
-  max-width: 90%;
-  margin: auto;
   display: block;
+}
+.login-form .btn {
+  width: 100%;
+}
+.auth-footer {
+  margin: 1.25rem 0 0;
+  color: var(--ink-600);
+  font-size: 0.92rem;
+  text-align: center;
+}
+.auth-footer a {
+  font-weight: 700;
+}
+@media (min-width: 760px) {
+  .auth-shell {
+    grid-template-columns: 0.85fr 1.15fr;
+  }
 }
