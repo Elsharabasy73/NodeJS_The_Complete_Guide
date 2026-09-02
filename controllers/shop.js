@@ -257,8 +257,7 @@ exports.getCheckout = (req, res, next) => {
         totalSum: total,
         sessionId: session.id,
         stripePublishableKey:
-          process.env.STRIPE_PUBLISHABLE_KEY ||
-          "pk_test_51Twcu60uuZYpQYE6N8emEDgozaAYBYEeFlBfCBod14soIOteYZF67eoOAl2qk2ToK4P1lqx2qlRFZV6F5omrPGfC00j90JWnM4",
+          process.env.STRIPE_PUBLISHABLE_KEY 
       });
     })
     .catch((err) => {

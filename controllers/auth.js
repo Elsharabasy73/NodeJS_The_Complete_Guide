@@ -8,10 +8,8 @@ const User = require("../models/user");
 const domain = require("../util/mydomain");
 
 // Use Gmail SMTP credentials from environment (.env loaded in app.js)
-const SINGLE_SENDER =
-  process.env.SENDER_EMAIL ||
-  process.env.SENDGRID_SENDER ||
-  "'furniture' sara.momo7112@gmail.com";
+const SENDER_EMAIL =
+  process.env.SENDER_EMAIL || process.env.SENDGRID_SENDER || null;
 const SENDER_PASSWORD =
   process.env.SENDER_PASSWORD || process.env.SENDGRID_PASSWORD || null;
 
@@ -20,10 +18,50 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: process.env.SENDER_EMAIL || process.env.SENDGRID_SENDER,
+    user: SENDER_EMAIL,
     pass: SENDER_PASSWORD,
   },
 });
+
+const sendEmail = async (options) => {
+  if (!SENDER_EMAIL || !SENDER_PASSWORD) {
+    throw new Error(
+      "Missing SENDER_EMAIL or SENDER_PASSWORD environment variable.",
+    );
+  }
+
+  try {
+    const info = await transporter.sendMail({
+      ...options,
+      from: { name: "Furniture Shop", address: SENDER_EMAIL },
+      replyTo: SENDER_EMAIL,
+    });
+
+    console.log("Email SMTP result:", {
+      messageId: info.messageId,
+      accepted: info.accepted,
+      rejected: info.rejected,
+      pending: info.pending,
+      response: info.response,
+    });
+
+    if (!info.accepted || info.accepted.length === 0) {
+      throw new Error(`SMTP did not accept email for ${options.to}.`);
+    }
+
+    return info;
+  } catch (err) {
+    console.error("Email delivery failed:", {
+      to: options.to,
+      code: err.code,
+      command: err.command,
+      responseCode: err.responseCode,
+      response: err.response,
+      message: err.message,
+    });
+    throw err;
+  }
+};
 
 exports.getLogin = (req, res, next) => {
   const errorMessageList = req.flash("error");
@@ -130,6 +168,8 @@ exports.postSignup = (req, res, next) => {
       return res.redirect("/signup");
     }
     const token = buffer.toString("hex");
+    let createdUser;
+
     bcrypt
       .hash(password, 12)
       .then((hashedPassword) => {
@@ -145,29 +185,50 @@ exports.postSignup = (req, res, next) => {
         return user.save();
       })
       .then((result) => {
-        res.redirect("/login");
+        createdUser = result;
+        const confirmationUrl = `${domain(req)}/confirm/${token}`;
 
-        return transporter.sendMail({
+        return sendEmail({
           to: email,
-          from: SINGLE_SENDER,
-          subject: "Signup successfully!",
-          html: `<h2>Dear ${email}</h2>
+          subject: "Confirm your Furniture Shop email address",
+          text: `Welcome to Furniture Shop.
 
-            <p>Thank you for signing up for our platform! </p>
-            <p>To ensure that you have provided a valid email address</p>
-            <p> please click on the link below to verify your account: <a href='${domain(
-              req,
-            )}/confirm/${token}'> Verify </a> </p>
-            <p>If you did not sign up for our platform, please ignore this email.</p>
-            <p>Thank you for your cooperation.</p>
-            <p>Best regards,</p>
-            <p>College Team</p>
+Please confirm your email address by opening this link:
+${confirmationUrl}
 
-            `,
+This link expires in 2 hours. If you did not create this account, you can ignore this email.
+
+Furniture Shop`,
+          html: `<!doctype html>
+<html lang="en">
+  <body style="margin:0;background:#f4f4f5;font-family:Arial,sans-serif;color:#27272a">
+    <div style="max-width:560px;margin:32px auto;padding:32px;background:#ffffff;border:1px solid #e4e4e7;border-radius:12px">
+      <h1 style="margin:0 0 16px;font-size:24px">Confirm your email address</h1>
+      <p style="line-height:1.6">Welcome to Furniture Shop. Confirm your email address to finish creating your account.</p>
+      <p style="margin:28px 0">
+        <a href="${confirmationUrl}" style="display:inline-block;padding:12px 20px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:6px">Confirm email address</a>
+      </p>
+      <p style="font-size:14px;line-height:1.6;color:#52525b">This link expires in 2 hours. If the button does not work, copy and paste this address into your browser:</p>
+      <p style="font-size:13px;line-height:1.6;word-break:break-all"><a href="${confirmationUrl}" style="color:#2563eb">${confirmationUrl}</a></p>
+      <hr style="margin:28px 0;border:0;border-top:1px solid #e4e4e7">
+      <p style="margin:0;font-size:13px;color:#71717a">If you did not create this account, you can safely ignore this email.</p>
+    </div>
+  </body>
+</html>`,
         });
-        // .catch((err) => console.log(err));
       })
-      .catch((err) => {
+      .then(() => {
+        res.redirect("/login");
+      })
+      .catch(async (err) => {
+        // Allow another signup attempt if the confirmation email could not be sent.
+        if (createdUser) {
+          try {
+            await User.deleteOne({ _id: createdUser._id });
+          } catch (cleanupError) {
+            console.error("Could not remove unconfirmed user:", cleanupError);
+          }
+        }
         console.log(`${domain(req)}/confirm/${token}`);
         console.log(err);
         const error = new Error(err);
@@ -219,21 +280,43 @@ exports.postReset = (req, res, next) => {
         user.resetTokenExpiration = Date.now() + 60000 * 120;
         console.log();
         return user.save().then((result) => {
-          res.redirect("/login");
-          return transporter
-            .sendMail({
-              to: email,
-              from: SINGLE_SENDER,
-              subject: "Reset your password!",
-              html: `
-              <h1>Ready to Reset?</h1>
-              <p> Click this <a href='https://w5vm9jzj-3000.uks1.devtunnels.ms/reset/${token}'> link </a> to set a new password</p>
-              `,
-            })
-            .catch((err) => console.log("asdfa", err));
+          const resetUrl = `${domain(req)}/reset/${token}`;
+
+          return sendEmail({
+            to: email,
+            subject: "Reset your Furniture Shop password",
+            text: `A password reset was requested for your Furniture Shop account.
+
+Set a new password by opening this link:
+${resetUrl}
+
+This link expires in 2 hours. If you did not request a password reset, you can ignore this email.
+
+Furniture Shop`,
+            html: `<!doctype html>
+<html lang="en">
+  <body style="margin:0;background:#f4f4f5;font-family:Arial,sans-serif;color:#27272a">
+    <div style="max-width:560px;margin:32px auto;padding:32px;background:#ffffff;border:1px solid #e4e4e7;border-radius:12px">
+      <h1 style="margin:0 0 16px;font-size:24px">Reset your password</h1>
+      <p style="line-height:1.6">A password reset was requested for your Furniture Shop account.</p>
+      <p style="margin:28px 0">
+        <a href="${resetUrl}" style="display:inline-block;padding:12px 20px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:6px">Set a new password</a>
+      </p>
+      <p style="font-size:14px;line-height:1.6;color:#52525b">This link expires in 2 hours. If the button does not work, copy and paste this address into your browser:</p>
+      <p style="font-size:13px;line-height:1.6;word-break:break-all"><a href="${resetUrl}" style="color:#2563eb">${resetUrl}</a></p>
+      <hr style="margin:28px 0;border:0;border-top:1px solid #e4e4e7">
+      <p style="margin:0;font-size:13px;color:#71717a">If you did not request this change, you can safely ignore this email.</p>
+    </div>
+  </body>
+</html>`,
+          }).then(() => res.redirect("/login"));
         });
       })
-      .catch((err) => console.log("adsf", err));
+      .catch((err) => {
+        const error = new Error(err);
+        error.setHttpStatus = 500;
+        next(error);
+      });
   });
 };
 
